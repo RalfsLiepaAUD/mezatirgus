@@ -24,7 +24,9 @@
         "export:demo": "tsx src/cli/export-demo.ts",
         "market:demo": "tsx src/cli/market-demo.ts",
         "scenario:demo": "tsx src/cli/scenario-demo.ts",
-        "sim:headless": "tsx src/cli/headless-runner.ts"
+        "sim:headless": "tsx src/cli/headless-runner.ts",
+        "world:demo": "tsx src/cli/world-demo.ts",
+        "sim:autonomous": "tsx src/cli/autonomous-runner.ts"
     },
     "engines": {
         "node": ">=22"
