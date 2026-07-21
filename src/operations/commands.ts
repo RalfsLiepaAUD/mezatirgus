@@ -513,13 +513,71 @@ export function registerOperationsCommands(e: SimulationEngine) {
     if (!Number.isSafeInteger(totalCost))
       return reject(c, 'COST_OVERFLOW', 'Sorting cost overflow');
 
-    // The sorting event records the change; inventory domain will handle certainty update
+    // Create payable, journal, and cost layer for the sorting cost
+    const payableId = e.ids.next('payable', 'PAYABLE');
+    const journalId = e.ids.next('journal', 'JOURNAL');
+    const costLayerId = e.ids.next('cost_layer', 'COST');
+    const identity = e.reserveEventIdentity();
+    const dueTimestamp = e.clock.currentGameTime + 3600;
+
+    const payable: Payable = {
+      id: payableId,
+      companyId: yard.companyId,
+      counterpartyId: yard.companyId,
+      principalMinor: totalCost,
+      currency: 'EUR',
+      createdTimestamp: e.clock.currentGameTime,
+      dueTimestamp,
+      status: 'COMMITTED',
+      amountPaidMinor: 0,
+      sourceEventId: identity.eventId,
+      sourceObjectIds: [yard.id, batch.id],
+    };
+
+    const tx = journalTx(e, journalId, identity.eventId, yard.companyId,
+      totalCost, yard.companyId,
+      [yard.id, batch.id], 'Yard sorting operating cost',
+      'SORTING_COST');
+
+    const costLayer: CostLayer = {
+      id: costLayerId,
+      attachedToType: 'BATCH',
+      attachedToId: batch.id,
+      sourceObjectId: yard.id,
+      category: 'OPERATIONAL',
+      currency: 'EUR',
+      totalMinor: totalCost,
+      attributableVolumeMilliM3: batch.currentVolumeMilliM3,
+      allocationMethod: 'DIRECT',
+      createdTimestamp: e.clock.currentGameTime,
+      financeSourceId: payableId,
+      provenanceReference: 'STEP_11_OPERATIONS_RULES',
+      status: 'ACTIVE',
+    };
+
+    const scheduledEvents: ScheduledEvent[] = [
+      scheduled(e, 'PayableBecameDue', dueTimestamp, { payableId }, c.commandId),
+      scheduled(e, 'PayableBecameOverdue', dueTimestamp + 1, { payableId }, c.commandId),
+    ];
+
     const conductType = p.conductType === 'OPPORTUNISTIC' ? 'OPPORTUNISTIC' : 'ETHICAL';
-    const x = emit(e, c, 'YardSortingRecorded', {
-      yardId: yard.id,
-      batchId: batch.id,
-      sortingCostMinor: totalCost,
-      conductType,
+    const x = e.emitReservedEvent(identity, {
+      eventType: 'YardSortingRecorded',
+      phase: SimulationPhase.FINANCIAL_SETTLEMENTS,
+      actorId: c.actorId,
+      targetIds: [yard.id, batch.id],
+      parentCauseId: c.commandId,
+      visibility: 'PLAYER_PRIVATE',
+      payload: {
+        yardId: yard.id,
+        batchId: batch.id,
+        sortingCostMinor: totalCost,
+        conductType,
+        payable,
+        transaction: tx,
+        costLayer,
+        scheduledEvents,
+      },
     });
 
     // Also emit a conduct event

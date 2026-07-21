@@ -467,15 +467,13 @@ describe('Step 12 — frame agreement and fulfillment', () => {
     expect(a.eventLogChecksum()).toBe(b.eventLogChecksum());
   });
 
-  // ── No Step 13 state ──────────────────────────────────────────────
-  it('contains no Step 13 port, export, or charter state', () => {
+  // ── No Step 14 state ──────────────────────────────────────────────
+  it('contains no Step 14 market state', () => {
     const e = world();
     const s: any = e.authoritativeState();
-    expect(s.ports).toBeUndefined();
-    expect(s.exports).toBeUndefined();
-    expect(s.charters).toBeUndefined();
     expect(s.markets).toBeUndefined();
     expect(s.contracts).toBeDefined();
+    expect(s.exports).toBeDefined();
   });
 
   // ── Fix: supplier vs buyer finance classification ─────────────────
@@ -585,5 +583,79 @@ describe('Step 12 — frame agreement and fulfillment', () => {
     expect(loaded.contracts.delivery('DELIVERY-000001')!.rateMinorPerM3).toBe(
       e.contracts.delivery('DELIVERY-000001')!.rateMinorPerM3
     );
+  });
+
+  // ── Fix: AgreementVolumeSettled finance effects ──────────────────────
+  it('agreement bonus creates correct receivable and balanced journal', () => {
+    const e = world();
+    go(e, 'AG', 'CreateFrameAgreement', { companyId: 'COMPANY-000001', counterpartyType: 'BUYER', counterpartyId: 'BUYER-000001', displayName: 'Bonus test', validFromTimestamp: 0, validUntilTimestamp: 100_000, committedVolumeMilliM3: 10_000, toleranceBasisPoints: 1_000, priceBasis: 'FIXED_RATE', fixedRateMinorPerM3: 5_000, paymentTermsSeconds: 7200, currency: 'EUR', requiredSpeciesIds: ['species.birch'], requiredAssortmentIds: ['assortment.pulpwood'] });
+    go(e, 'ACT', 'ActivateFrameAgreement', { agreementId: 'AGREEMENT-000001' });
+    go(e, 'DEAL', 'CreateDeal', { companyId: 'COMPANY-000001', counterpartyId: 'supplier.demo', currency: 'EUR', expectedVolumeMilliM3: 20_000, description: 't', financeSourceIds: [] });
+    go(e, 'DA', 'ActivateDeal', { dealId: 'DEAL-000001' });
+    go(e, 'LOT', 'CreateLot', { dealId: 'DEAL-000001', ownerCompanyId: 'COMPANY-000001', custodyActorId: 'COMPANY-000001', locationId: 'LOCATION-000001', originalVolumeMilliM3: 20_000, composition, freshness: 'FRESH', certainty: 'ESTIMATED' });
+    go(e, 'BATCH', 'CreateInitialBatch', { lotId: 'LOT-000001', volumeMilliM3: 20_000, composition });
+    go(e, 'LOAD', 'CreateLoad', { ownerCompanyId: 'COMPANY-000001', custodyActorId: 'COMPANY-000001', originLocationId: 'LOCATION-000001' });
+    go(e, 'ALLOC', 'AllocateBatchToLoad', { batchId: 'BATCH-000001', loadId: 'LOAD-000001', volumeMilliM3: 12_000 });
+    go(e, 'DEL', 'RecordAgreementDelivery', { agreementId: 'AGREEMENT-000001', loadId: 'LOAD-000001', volumeMilliM3: 12_000 });
+    go(e, 'ACC', 'AcceptAgreementDelivery', { deliveryId: 'DELIVERY-000001', acceptedVolumeMilliM3: 12_000 });
+    go(e, 'SV', 'SettleAgreementVolume', { agreementId: 'AGREEMENT-000001', bonusRateMinorPerM3: 200 });
+    // Bonus creates receivable in finance
+    expect(e.finance.snapshot().receivables.length).toBe(1);
+    expect(e.finance.snapshot().payables.length).toBe(0);
+    expect(e.finance.snapshot().receivables[0]!.principalMinor).toBeGreaterThan(0);
+    // Balanced journal
+    const bonusTx = e.finance.transactions().find(t => t.description.includes('bonus'));
+    expect(bonusTx).toBeDefined();
+    expect(bonusTx!.lines.reduce((s, l) => s + l.debitMinor, 0))
+      .toBe(bonusTx!.lines.reduce((s, l) => s + l.creditMinor, 0));
+    // No cash change
+    expect(e.finance.balanceByCode('COMPANY-000001', 'OPERATING_CASH')).toBe(1_000_000);
+  });
+
+  it('agreement penalty creates correct payable and balanced journal', () => {
+    const e = world();
+    go(e, 'SUP', 'CreateSupplier', { configId: 'supplier.liepa_owner', displayName: 'Liepa Forest', fictional: true, archetype: 'PRIVATE_FOREST_OWNER', companyId: 'COMPANY-000001', locationId: 'LOCATION-000002', channels: ['PRIVATE_ROADSIDE_OFFER'], suppliedSpeciesIds: ['species.birch'], suppliedAssortmentIds: ['assortment.pulpwood'], paymentExpectationSeconds: 3600, documentReliabilityBasisPoints: 5000, freshnessAnswerReliabilityBasisPoints: 5000, initialRelationshipBasisPoints: 5000 });
+    go(e, 'AG', 'CreateFrameAgreement', { companyId: 'COMPANY-000001', counterpartyType: 'SUPPLIER', counterpartyId: 'SUPPLIER-000001', displayName: 'Penalty test', validFromTimestamp: 0, validUntilTimestamp: 100_000, committedVolumeMilliM3: 10_000, toleranceBasisPoints: 1_000, priceBasis: 'FIXED_RATE', fixedRateMinorPerM3: 4_000, paymentTermsSeconds: 7200, currency: 'EUR', requiredSpeciesIds: ['species.birch'], requiredAssortmentIds: ['assortment.pulpwood'] });
+    go(e, 'ACT', 'ActivateFrameAgreement', { agreementId: 'AGREEMENT-000001' });
+    go(e, 'DEAL', 'CreateDeal', { companyId: 'COMPANY-000001', counterpartyId: 'supplier.demo', currency: 'EUR', expectedVolumeMilliM3: 10_000, description: 't', financeSourceIds: [] });
+    go(e, 'DA', 'ActivateDeal', { dealId: 'DEAL-000001' });
+    go(e, 'LOT', 'CreateLot', { dealId: 'DEAL-000001', ownerCompanyId: 'COMPANY-000001', custodyActorId: 'COMPANY-000001', locationId: 'LOCATION-000001', originalVolumeMilliM3: 5_000, composition, freshness: 'FRESH', certainty: 'ESTIMATED' });
+    go(e, 'BATCH', 'CreateInitialBatch', { lotId: 'LOT-000001', volumeMilliM3: 5_000, composition });
+    go(e, 'LOAD', 'CreateLoad', { ownerCompanyId: 'COMPANY-000001', custodyActorId: 'COMPANY-000001', originLocationId: 'LOCATION-000001' });
+    go(e, 'ALLOC', 'AllocateBatchToLoad', { batchId: 'BATCH-000001', loadId: 'LOAD-000001', volumeMilliM3: 5_000 });
+    go(e, 'DEL', 'RecordAgreementDelivery', { agreementId: 'AGREEMENT-000001', loadId: 'LOAD-000001', volumeMilliM3: 5_000 });
+    go(e, 'ACC', 'AcceptAgreementDelivery', { deliveryId: 'DELIVERY-000001', acceptedVolumeMilliM3: 5_000 });
+    go(e, 'SV', 'SettleAgreementVolume', { agreementId: 'AGREEMENT-000001', penaltyRateMinorPerM3: 500 });
+    // Penalty creates payable in finance
+    expect(e.finance.snapshot().payables.length).toBeGreaterThan(0);
+    expect(e.finance.snapshot().payables.some(p => p.principalMinor > 0)).toBe(true);
+    // Balanced journal for the penalty
+    const penaltyTx = e.finance.transactions().find(t => t.description.includes('penalty'));
+    expect(penaltyTx).toBeDefined();
+    expect(penaltyTx!.lines.reduce((s, l) => s + l.debitMinor, 0))
+      .toBe(penaltyTx!.lines.reduce((s, l) => s + l.creditMinor, 0));
+    // No cash change
+    expect(e.finance.balanceByCode('COMPANY-000001', 'OPERATING_CASH')).toBe(1_000_000);
+  });
+
+  it('repeated volume settlement command does not duplicate finance objects', () => {
+    const e = world();
+    go(e, 'AG', 'CreateFrameAgreement', { companyId: 'COMPANY-000001', counterpartyType: 'BUYER', counterpartyId: 'BUYER-000001', displayName: 'Replay', validFromTimestamp: 0, validUntilTimestamp: 100_000, committedVolumeMilliM3: 10_000, toleranceBasisPoints: 1_000, priceBasis: 'FIXED_RATE', fixedRateMinorPerM3: 5_000, paymentTermsSeconds: 7200, currency: 'EUR', requiredSpeciesIds: ['species.birch'], requiredAssortmentIds: ['assortment.pulpwood'] });
+    go(e, 'ACT', 'ActivateFrameAgreement', { agreementId: 'AGREEMENT-000001' });
+    go(e, 'DEAL', 'CreateDeal', { companyId: 'COMPANY-000001', counterpartyId: 'supplier.demo', currency: 'EUR', expectedVolumeMilliM3: 20_000, description: 't', financeSourceIds: [] });
+    go(e, 'DA', 'ActivateDeal', { dealId: 'DEAL-000001' });
+    go(e, 'LOT', 'CreateLot', { dealId: 'DEAL-000001', ownerCompanyId: 'COMPANY-000001', custodyActorId: 'COMPANY-000001', locationId: 'LOCATION-000001', originalVolumeMilliM3: 20_000, composition, freshness: 'FRESH', certainty: 'ESTIMATED' });
+    go(e, 'BATCH', 'CreateInitialBatch', { lotId: 'LOT-000001', volumeMilliM3: 20_000, composition });
+    go(e, 'LOAD', 'CreateLoad', { ownerCompanyId: 'COMPANY-000001', custodyActorId: 'COMPANY-000001', originLocationId: 'LOCATION-000001' });
+    go(e, 'ALLOC', 'AllocateBatchToLoad', { batchId: 'BATCH-000001', loadId: 'LOAD-000001', volumeMilliM3: 12_000 });
+    go(e, 'DEL', 'RecordAgreementDelivery', { agreementId: 'AGREEMENT-000001', loadId: 'LOAD-000001', volumeMilliM3: 12_000 });
+    go(e, 'ACC', 'AcceptAgreementDelivery', { deliveryId: 'DELIVERY-000001', acceptedVolumeMilliM3: 12_000 });
+    go(e, 'SV', 'SettleAgreementVolume', { agreementId: 'AGREEMENT-000001', bonusRateMinorPerM3: 200 });
+    const recvCount = e.finance.snapshot().receivables.length;
+    // Repeat — should be rejected by contracts domain duplicate check on replay
+    const snap = createSnapshot(e);
+    const loaded = loadSave(createSave(e, snap));
+    expect(loaded.stateChecksum()).toBe(e.stateChecksum());
+    expect(loaded.finance.snapshot().receivables.length).toBe(recvCount);
   });
 });

@@ -382,11 +382,145 @@ export function registerContractsCommands(e: SimulationEngine) {
     const a = e.contracts.agreement(String(c.payload.agreementId));
     if (!a || !['ACTIVE', 'EXPIRED', 'FULFILLED'].includes(a.status))
       return reject(c, 'INVALID_STATE', 'Agreement must be active or expired');
-    const x = emit(e, c, 'AgreementVolumeSettled', {
+
+    const bonusRate = Number(c.payload.bonusRateMinorPerM3 ?? 200);
+    const penaltyRate = Number(c.payload.penaltyRateMinorPerM3 ?? 500);
+
+    // Calculate bonus/penalty (same logic as contracts domain apply)
+    const committed = a.committedVolumeMilliM3;
+    const accepted = a.acceptedVolumeMilliM3;
+    let bonusMinor = 0;
+    let penaltyMinor = 0;
+
+    if (accepted > 0) {
+      const toleranceVolume = Number(BigInt(committed) * BigInt(a.toleranceBasisPoints) / 10000n);
+      const minVolume = committed - toleranceVolume;
+      const maxVolume = committed + toleranceVolume;
+
+      if (accepted < minVolume) {
+        const shortfall = minVolume - accepted;
+        penaltyMinor = Number(BigInt(shortfall) * BigInt(penaltyRate) / 1000n);
+      } else if (accepted > maxVolume) {
+        const excess = accepted - maxVolume;
+        bonusMinor = Number(BigInt(excess) * BigInt(bonusRate) / 1000n);
+      }
+    }
+
+    // Create financial objects for bonus/penalty
+    const identity = e.reserveEventIdentity();
+    const dueTimestamp = e.clock.currentGameTime + a.paymentTermsSeconds;
+    const isBuyer = a.counterpartyType === 'BUYER';
+    const financeId = bonusMinor > 0 ? e.ids.next('receivable', 'RECEIVABLE') : penaltyMinor > 0 ? e.ids.next('payable', 'PAYABLE') : undefined;
+    const journalId = e.ids.next('journal', 'JOURNAL');
+    const costLayerId = e.ids.next('cost_layer', 'COST');
+
+    let receivable: Receivable | undefined;
+    let payable: Payable | undefined;
+    let tx: JournalTransaction | undefined;
+    let costLayer: CostLayer | undefined;
+
+    if (bonusMinor > 0) {
+      const company = e.finance.company(a.companyId);
+      if (!company) return reject(c, 'COMPANY_NOT_FOUND', 'Company not found');
+
+      receivable = {
+        id: financeId!,
+        companyId: a.companyId,
+        counterpartyId: a.counterpartyId,
+        principalMinor: bonusMinor,
+        currency: 'EUR',
+        invoiceTimestamp: e.clock.currentGameTime,
+        dueTimestamp,
+        status: 'OPEN',
+        amountPaidMinor: 0,
+        sourceEventId: identity.eventId,
+        sourceObjectIds: [a.id],
+        expectedPaymentNote: `Agreement volume bonus ${a.id}`,
+        agingState: 'NOT_DUE',
+      };
+
+      const debitAccount = e.finance.snapshot().accounts.find(ac => ac.companyId === a.companyId && ac.code === 'ACCOUNTS_RECEIVABLE')!.id;
+      const creditAccount = e.finance.snapshot().accounts.find(ac => ac.companyId === a.companyId && ac.code === 'REVENUE')!.id;
+
+      tx = {
+        id: journalId, timestamp: e.clock.currentGameTime, eventId: identity.eventId,
+        companyId: a.companyId, description: `Agreement volume bonus ${a.id}`,
+        schemaVersion: 1, sourceObjectIds: [a.id],
+        lines: [
+          { accountId: debitAccount, debitMinor: bonusMinor, creditMinor: 0, currency: 'EUR', category: 'AGREEMENT_BONUS', counterpartyId: a.counterpartyId, memo: `Volume bonus ${a.id}`, ruleReference: 'STEP_12_AGREEMENT_RULES' },
+          { accountId: creditAccount, debitMinor: 0, creditMinor: bonusMinor, currency: 'EUR', category: 'AGREEMENT_BONUS', counterpartyId: a.counterpartyId, memo: `Volume bonus ${a.id}`, ruleReference: 'STEP_12_AGREEMENT_RULES' },
+        ],
+      };
+    } else if (penaltyMinor > 0) {
+      const company = e.finance.company(a.companyId);
+      if (!company) return reject(c, 'COMPANY_NOT_FOUND', 'Company not found');
+
+      payable = {
+        id: financeId!,
+        companyId: a.companyId,
+        counterpartyId: a.counterpartyId,
+        principalMinor: penaltyMinor,
+        currency: 'EUR',
+        createdTimestamp: e.clock.currentGameTime,
+        dueTimestamp,
+        status: 'COMMITTED',
+        amountPaidMinor: 0,
+        sourceEventId: identity.eventId,
+        sourceObjectIds: [a.id],
+      };
+
+      const debitAccount = e.finance.snapshot().accounts.find(ac => ac.companyId === a.companyId && ac.code === 'OPERATING_EXPENSE')!.id;
+      const creditAccount = e.finance.snapshot().accounts.find(ac => ac.companyId === a.companyId && ac.code === 'ACCOUNTS_PAYABLE')!.id;
+
+      tx = {
+        id: journalId, timestamp: e.clock.currentGameTime, eventId: identity.eventId,
+        companyId: a.companyId, description: `Agreement volume penalty ${a.id}`,
+        schemaVersion: 1, sourceObjectIds: [a.id],
+        lines: [
+          { accountId: debitAccount, debitMinor: penaltyMinor, creditMinor: 0, currency: 'EUR', category: 'AGREEMENT_PENALTY', counterpartyId: a.counterpartyId, memo: `Volume penalty ${a.id}`, ruleReference: 'STEP_12_AGREEMENT_RULES' },
+          { accountId: creditAccount, debitMinor: 0, creditMinor: penaltyMinor, currency: 'EUR', category: 'AGREEMENT_PENALTY', counterpartyId: a.counterpartyId, memo: `Volume penalty ${a.id}`, ruleReference: 'STEP_12_AGREEMENT_RULES' },
+        ],
+      };
+    }
+
+    const payload: Record<string, unknown> = {
       agreementId: a.id,
-      bonusRateMinorPerM3: Number(c.payload.bonusRateMinorPerM3 ?? 200),
-      penaltyRateMinorPerM3: Number(c.payload.penaltyRateMinorPerM3 ?? 500),
+      bonusRateMinorPerM3: bonusRate,
+      penaltyRateMinorPerM3: penaltyRate,
+      bonusMinor,
+      penaltyMinor,
+    };
+
+    if (tx) payload.transaction = tx;
+    if (receivable) {
+      payload.financeObjectType = 'RECEIVABLE';
+      payload.receivable = receivable;
+      payload.receivableId = financeId;
+      payload.scheduledEvents = [
+        scheduled(e, 'ReceivableBecameDue', dueTimestamp, { receivableId: financeId! }, c.commandId),
+        scheduled(e, 'ReceivableBecameOverdue', dueTimestamp + 1, { receivableId: financeId! }, c.commandId),
+      ];
+    }
+    if (payable) {
+      payload.financeObjectType = 'PAYABLE';
+      payload.payable = payable;
+      payload.payableId = financeId;
+      payload.scheduledEvents = [
+        scheduled(e, 'PayableBecameDue', dueTimestamp, { payableId: financeId! }, c.commandId),
+        scheduled(e, 'PayableBecameOverdue', dueTimestamp + 1, { payableId: financeId! }, c.commandId),
+      ];
+    }
+
+    const settlementEvent = e.emitReservedEvent(identity, {
+      eventType: 'AgreementVolumeSettled',
+      phase: SimulationPhase.FINANCIAL_SETTLEMENTS,
+      actorId: c.actorId,
+      targetIds: [a.id],
+      parentCauseId: c.commandId,
+      visibility: 'PLAYER_PRIVATE',
+      payload,
     });
-    return { accepted: true as const, commandId: c.commandId, emittedEventIds: [x.eventId] };
+
+    return { accepted: true as const, commandId: c.commandId, emittedEventIds: [settlementEvent.eventId] };
   });
 }

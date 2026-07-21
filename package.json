@@ -20,7 +20,8 @@
                     "auction:demo":  "tsx src/cli/auction-demo.ts",
                     "forest:demo":  "tsx src/cli/forest-demo.ts",
 "operations:demo":  "tsx src/cli/operations-demo.ts",
-"agreement:demo":  "tsx src/cli/agreement-demo.ts"
+"agreement:demo":  "tsx src/cli/agreement-demo.ts",
+"export:demo":  "tsx src/cli/export-demo.ts"
                 },
     "engines":  {
                     "node":  "\u003e=22"

@@ -528,7 +528,6 @@ describe('Step 11 — yard, truck, driver, employee, and recurring lane', () => 
   it('rejects atomic paths and contains no Step 12 state', () => {
     const e = world();
     const s: any = e.authoritativeState();
-    expect(s.exports).toBeUndefined();
     expect(s.markets).toBeUndefined();
     expect(s.operations).toBeDefined();
     expect(s.operations.yards).toHaveLength(1);
@@ -540,5 +539,102 @@ describe('Step 11 — yard, truck, driver, employee, and recurring lane', () => 
     expect(summary.length).toBeGreaterThan(0);
     expect(summary.some(l => l.includes('Yards'))).toBe(true);
     expect(summary.some(l => l.includes('Fleet'))).toBe(true);
+  });
+
+  // ── Fix: dispatch completion stores its balanced journal ──────────
+  it('dispatch completion stores balanced journal in finance domain', () => {
+    const e = world();
+    go(e, 'DO', 'CreateDispatchOrder', {
+      companyId: 'COMPANY-000001', truckId: 'TRUCK-000001', driverId: 'DRIVER-000001',
+      loadId: 'LOAD-000001', destinationLocationId: 'LOCATION-000002',
+    });
+    go(e, 'DC', 'ConfirmDispatchOrder', { orderId: 'DISPATCH-000001' });
+    e.advanceUntil(7200);
+    go(e, 'U', 'UnloadDispatchOrder', { orderId: 'DISPATCH-000001' });
+    go(e, 'DONE', 'CompleteDispatchOrder', { orderId: 'DISPATCH-000001' });
+    // Journal transaction must exist and be balanced
+    const txns = e.finance.transactions();
+    const dispatchTx = txns.find(t => t.description.includes('transport operating cost'));
+    expect(dispatchTx).toBeDefined();
+    const totalDebit = dispatchTx!.lines.reduce((s, l) => s + l.debitMinor, 0);
+    const totalCredit = dispatchTx!.lines.reduce((s, l) => s + l.creditMinor, 0);
+    expect(totalDebit).toBeGreaterThan(0);
+    expect(totalDebit).toBe(totalCredit);
+    // Payable exists
+    expect(e.finance.snapshot().payables.length).toBeGreaterThan(0);
+  });
+
+  // ── Fix: yard sorting changes batch certainty and creates finance artifacts ─
+  it('yard sorting changes batch certainty to SORTED', () => {
+    const e = world();
+    go(e, 'SORT', 'SortBatchAtYard', {
+      yardId: 'YARD-000001', batchId: 'BATCH-000001', conductType: 'ETHICAL',
+    });
+    expect(e.inventory.batch('BATCH-000001')!.certainty).toBe('SORTED');
+  });
+
+  it('yard sorting cost appears exactly once in finance and cost layers', () => {
+    const e = world();
+    const batch = e.inventory.batch('BATCH-000001')!;
+    const yard = e.operations.yard('YARD-000001')!;
+    const expectedCost = Number(BigInt(batch.currentVolumeMilliM3) * BigInt(yard.sortingCostMinorPerM3) / 1000n);
+    go(e, 'SORT', 'SortBatchAtYard', {
+      yardId: 'YARD-000001', batchId: 'BATCH-000001', conductType: 'ETHICAL',
+    });
+    // One payable created with correct amount
+    const payables = e.finance.snapshot().payables;
+    expect(payables.length).toBe(1);
+    expect(payables[0]!.principalMinor).toBe(expectedCost);
+    // One journal transaction for the sorting cost
+    const txns = e.finance.transactions();
+    const sortTx = txns.find(t => t.description.includes('sorting'));
+    expect(sortTx).toBeDefined();
+    expect(sortTx!.lines.reduce((s, l) => s + l.debitMinor, 0))
+      .toBe(sortTx!.lines.reduce((s, l) => s + l.creditMinor, 0));
+    // Cost layer on the batch
+    expect(e.inventory.batch('BATCH-000001')!.costLayerIds.length).toBe(1);
+    // No cash mutation
+    expect(e.finance.balanceByCode('COMPANY-000001', 'OPERATING_CASH')).toBe(1_000_000);
+  });
+
+  it('repeated sort command is rejected (no duplicate cost)', () => {
+    const e = world();
+    go(e, 'SORT', 'SortBatchAtYard', {
+      yardId: 'YARD-000001', batchId: 'BATCH-000001', conductType: 'ETHICAL',
+    });
+    const before = e.auditFingerprint();
+    expect(go(e, 'SORT2', 'SortBatchAtYard', {
+      yardId: 'YARD-000001', batchId: 'BATCH-000001', conductType: 'ETHICAL',
+    }).accepted).toBe(false);
+    expect(e.auditFingerprint()).toBe(before);
+  });
+
+  it('dispatch completion journal and yard sorting survive save/load/replay', () => {
+    const e = world();
+    const snap = createSnapshot(e);
+    go(e, 'DO', 'CreateDispatchOrder', {
+      companyId: 'COMPANY-000001', truckId: 'TRUCK-000001', driverId: 'DRIVER-000001',
+      loadId: 'LOAD-000001', destinationLocationId: 'LOCATION-000002',
+    });
+    go(e, 'DC', 'ConfirmDispatchOrder', { orderId: 'DISPATCH-000001' });
+    // Save/load before time advancement
+    const loaded = loadSave(createSave(e, snap));
+    // Advance both to arrival
+    loaded.advanceUntil(7200);
+    e.advanceUntil(7200);
+    // Unload and complete on both
+    go(loaded, 'U', 'UnloadDispatchOrder', { orderId: 'DISPATCH-000001' });
+    go(e, 'U', 'UnloadDispatchOrder', { orderId: 'DISPATCH-000001' });
+    go(loaded, 'DONE', 'CompleteDispatchOrder', { orderId: 'DISPATCH-000001' });
+    go(e, 'DONE', 'CompleteDispatchOrder', { orderId: 'DISPATCH-000001' });
+    go(loaded, 'SORT', 'SortBatchAtYard', {
+      yardId: 'YARD-000001', batchId: 'BATCH-000001', conductType: 'ETHICAL',
+    });
+    go(e, 'SORT', 'SortBatchAtYard', {
+      yardId: 'YARD-000001', batchId: 'BATCH-000001', conductType: 'ETHICAL',
+    });
+    expect(loaded.stateChecksum()).toBe(e.stateChecksum());
+    expect(loaded.finance.transactions().length).toBe(e.finance.transactions().length);
+    expect(loaded.inventory.batch('BATCH-000001')!.certainty).toBe('SORTED');
   });
 });
