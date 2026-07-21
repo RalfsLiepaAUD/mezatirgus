@@ -1,0 +1,153 @@
+ok all 3 are now running. Lets try to play the game right now, with you, ill be the palyer, you will narrate the game to me. For example, you iwll give me an answer with my starting money and some of the variables i would see as a player, like some auction options etc, you can simplify things, like dont give me 1000 different auction options, just do 1-2 as a test, this wya i can see if anything feels like its missing.What do you think?Architected paper prototype with hidden state, lean mechanics, and turn-based progressionArchitected paper prototype with hidden state, lean mechanics, and turn-based progressionThis is exactly the right move — a paper prototype costs nothing and finds design holes faster than any spec review. I'm in. Three table rules so it's a real test and not theater:
+
+I keep hidden state honestly. Pile compositions, mill biases, AI bidder limits — decided before you act, revealed only through play. No retrofitting.
+Time advances when you act. Payments, auction closes, degradation — all on the game calendar.
+Square brackets = design talk. Anytime something feels missing or wrong, drop out of character with [brackets] and we fix the spec on the spot. That's the actual point of this session.
+
+Simplified test scope: birch only, 4 buyers, 2 supply opportunities, hired transport. Normal difficulty.
+
+════════════════════════════════════════════════════════
+ MEŽTIRGUS — Day 1 · Monday, 14 September, Year 1
+ Season: early autumn. Dry roads. Mills back from summer stops.
+────────────────────────────────────────────────────────
+ FREE CASH   €25,000   COMMITTED   €0   RECEIVABLES   €0
+════════════════════════════════════════════════════════
+
+ YOU: solo trader, Riga. Phone, used Passat, no office.
+ Contacts: VALDIS — small harvesting crew boss, Ogre region
+           (knows you from your mill years, mild trust)
+
+ BUYERS — birch price cards (EUR/m³, delivered, <18/18-25/26+)
+ ┌─────────────┬──────────┬────────┬─────────┬──────────────┐
+ │ Mill        │ Card     │ Pays   │ Instant │ Reputation   │
+ ├─────────────┼──────────┼────────┼─────────┼──────────────┤
+ │ KORNBEST    │ 75/105/115│ 21 d  │ no      │ strict grader,│
+ │  Riga, ~20km│ +A paid  │        │         │ honest meters │
+ │             │ separately│       │         │               │
+ │ BALTICPLY   │ 70/100/110│ 21 d  │ −5 €/m³ │ takes almost  │
+ │  Jelgava,65km│          │        │         │ anything, word│
+ │             │          │        │         │ is they measure│
+ │             │          │        │         │ "their way"   │
+ │ NORDIC ELITE│ 72/103/112│ 14 d  │ no      │ middle of road│
+ │  Jēkabpils,140km│      │        │         │               │
+ │ GRANEXO     │ pulpwood │ 28 d   │ no      │ export yard,  │
+ │  Salacgrīva,95km│ 61 flat│      │         │ takes volume  │
+ └─────────────┴──────────┴────────┴─────────┴──────────────┘
+
+ SUPPLY — on your radar today
+
+ [1] VALDIS calls: private owner's clearcut near Ogre, mixed
+     birch pile at roadside, ~45 m³ by his eye. Owner asks
+     €78/m³ FLAT for the whole pile, wants money in 3 days,
+     "or he calls someone else."
+     Your eyeball from the photos Valdis sent: maybe 60–70%
+     veneer-grade, some thick logs visible, some junk at the
+     bottom of the pile. Hard to say more from photos.
+
+ [2] LVM e-auction #4471, closes Wed (Day 3, 14:00):
+     Prepared lot, Vidzeme, ~95 km out. Declared: 58 m³ birch
+     veneer logs, mostly 18–25 cm, roadside, removal within
+     30 days. Starting price €82/m³. Deposit €500 to bid.
+     Current bids: none yet. LVM lots usually draw 2–4 bidders
+     by close.
+
+ TRANSPORT — hired carriers, September availability good
+     short haul (≤60 km):  €10/m³      med haul (~100 km): €14/m³
+     one truck ≈ 30 m³, next-day pickup typical
+
+ NEWS TICKER
+ · Scandinavian pulp demand strong — Baltic birch pulpwood firm at 60+
+ · Veneer log market still soft after summer; buyers grading carefully
+ · Heard secondhand: BALTICPLY short on thin logs this month
+════════════════════════════════════════════════════════
+The phone is otherwise quiet. Nobody knows your name yet — inbound calls are something you earn.
+Your move. Act freely — inspect, negotiate, bid, call someone, drive somewhere, do math out loud, or split your attention across several things. The world advances when you commit to something.bid on LVM, and definetly buy Valdis offerOrchestrated dual timber acquisitions and auction bidding mechanicsOrchestrated dual timber acquisitions and auction bidding mechanicsTwo commitments. Executing in order.
+The Ogre pile. You call the owner Monday afternoon. He's friendly but firm, and immediately the first real deal-term surfaces: whose cubic meters are we talking about? You float paying on mill measurement — he refuses flat. "Valdis says forty-five, I want money for forty-five by Thursday, or Andris from Aizkraukle takes it." He has the leverage and knows it. You agree: 45 m³ agreed volume × €78 = €3,510, cash by Day 3. Valdis is pleased you moved fast — the owner is his client too, and you just made him look good. He mentions, almost in passing: "If you want, my forwarder's still on site — we can rough-sort the pile before loading, pull the obvious junk and thin stuff apart. €2 a cube, costs you a day."
+[Design note: we never explicitly specced volume basis as a negotiable deal term on roadside buys — agreed-volume vs. pay-on-measurement is a real lever that shifts measurement risk between parties. Adding it to the supply-channel spec.]
+LVM auction #4471. Registration done, €500 deposit paid (refundable if you lose). Mechanics: open e-auction, bids in €1/m³ increments, highest bid at Wednesday 14:00 wins, payment in full within 10 days of close, removal within 30 days. The lot sheet shows LVM's spec: 58 m³, birch veneer logs, professionally bucked, 70% declared in the 18–25 bracket. LVM specs are usually honest — that's partly what the €82 start price is charging you for.
+════════════════════════════════════════════════════════
+ Day 1, evening
+────────────────────────────────────────────────────────
+ FREE CASH  €24,500   COMMITTED  €3,510 (due Day 3)
+ RECEIVABLES  €0      DEPOSITS   €500 (LVM)
+ INVENTORY  45 m³* birch, mixed, roadside Ogre (*agreed vol.)
+════════════════════════════════════════════════════════
+Two calls to make before the world moves on:
+1. The auction. Bidding is open, board still empty. What's your play — opening bid now to stake the lot, or lurk and snipe near close? And critically: your walk-away maximum, €/m³. (Decide it now, in the calm. Auctions have a way of moving that number for you if you don't.)
+2. The pile. Trucks can come Wednesday. Options: load it as-is and pick a destination — or take Valdis's €90 sort first and load Thursday with the pile split into rough grades, which changes what routing is even possible. As-is, that pile is exactly the kind of truck BALTICPLY was built for... and exactly the kind KORNBEST bounces at the gate.
+Your dashboard also quietly notes: after Thursday's payment you're at ~€21k free, and if you win that auction anywhere near €85, LVM wants ~€5k within ten days. The squeeze hasn't started yet. It's stretching.Modeled risky timber deal economics and grading outcomesModeled risky timber deal economics and grading outcomesDone — no photos requested, no questions asked, money moving by Monday. The village telegraph will love you; let's see what the grading table thinks.
+Day 11, Monday. You pay the old man his €2,000. He counts nothing, thanks you twice, mentions his brother-in-law near Ķegums "also has some trees down." The Ogre network is compounding.
+Day 12. One truck, 25 m³, Ogre → KORNBEST, €270. At the gate: a slow walk-around, a pause at one end of the load — longer than last time — then the wave through. That pause had a reason:
+════════════════════════════════════════════════════════
+ KORNBEST — Uzmērīšanas akts Nr. 1203 (Day 12)
+────────────────────────────────────────────────────────
+ Measured at mill:            24.3 m³   (agreed 25.0, −0.7)
+ ├─ A-grade         @ €150 ···· 0.8 m³ ··· € 120
+ ├─ 26+ cm  B       @ €115 ···· 6.5 m³ ··· € 748
+ ├─ 18–25 cm B      @ €105 ···· 9.2 m³ ··· € 966
+ ├─ under 18 cm     @ €75 ····· 4.6 m³ ··· € 345
+ ├─ C by form       @ €70 ····· 1.7 m³ ··· € 119
+ └─ BLUE STAIN → brāķis @ €40 · 1.5 m³ ··· €  60
+ PAYABLE ····································· €2,358
+ Terms: 21 days → Day 33
+────────────────────────────────────────────────────────
+ DEAL P&L: €2,358 − €2,000 − €270 haul = ────── +€88
+════════════════════════════════════════════════════════
+ FREE CASH €16,011
+ RECEIVABLES €5,958 (Day 28) + €2,358 (Day 33) = €8,316
+ Running total: −€262 +€216 +€88 = ──────────── +€42
+════════════════════════════════════════════════════════
+A win — barely — and the act is worth studying. The old man's trees really were thick: €748 of 26+, even a sliver of A. What bit you was the line you couldn't see in anyone's photos: blue stain. That wood was cut in August and sat a month at roadside through warm weeks — 1.5 m³ of veneer-quality logs went to brāķis money not for what they were, but for when they were. KORNBEST's honest meters can't help you there; stain is stain. At their price card those logs would have been ~€160. Two more weeks in that pile and it's not 1.5 m³.
+[Design note: supply offers need a felling date field — visible when the seller knows it, estimable when they don't, and "how long has this been lying?" should be a standard free due-diligence question the player learns to always ask. Freshness is a hidden-value axis on every buy, not just a storage rule for wood you already own.]
+One softer signal: KORNBEST's procurement guy doesn't call this time. Load accepted, paperwork clean — but he complimented you three days ago for LVM-grade 18–25, and what arrived next was village mix with stain in it. Nothing broken. Just noted, somewhere in a spreadsheet you'll never see, that you're a two-kinds-of-wood supplier now.
+Also Monday: the new LVM listings — and this week Vidzeme is livelier:
+ [A] Lot #4502 — 61 m³ birch veneer logs, prepared, Vidzeme
+     (~100 km). Similar spec to your last one. Start €84/m³.
+     One bid already on the board at open: SILVATRANS, €84.
+     Closes Thursday, Day 15.
+ [B] Lot #4507 — 140 m³ MIXED: ~80 m³ birch pulpwood + ~60 m³
+     birch veneer logs, one lot, take all. Zemgale (~70 km).
+     Start €66/m³ blended. Closes Friday, Day 16.
+     A sorting/routing puzzle — pulp to GRANEXO at 61, logs to
+     a veneer mill — for someone with the capital: ~€9,300+ at
+     start price, and nobody's touched it yet.
+ NEWS: GRANEXO lifts pulpwood to €62 — Swedish pull continues.
+     Veneer cards unchanged, grading "attentive" everywhere.
+SILVATRANS opening on day one instead of sniping reads like intent — they got beaten by you last week and Vidzeme is their yard. Meanwhile your two receivables don't land until Days 28 and 33, so €16,011 is what you've got to fight with. The board is yours: chase #4502 into SILVATRANS's teeth, size up the big mixed lot, work the phones — Ķegums brother-in-law, KORNBEST's half-open door — or sit tight and let money come home first.lets beat silvatrans no matter what on that load, and lets call kornbest to try to struck a deal with them - offer only good LVM trucks, if they can +5 on their price (design add: if fail the deal, make some kind of problem like they will get mad, i lose some credibility, they judge future trucks more harshly, i need to regain trust)
+lets buy lot B, max 71eur/m3Orchestrated auction strategy, cash flow mechanics, and relationship consequencesOrchestrated auction strategy, cash flow mechanics, and relationship consequencesAll three orders in motion — and "no matter what" is about to get a price tag.
+Day 13, the KORNBEST call. You pitch it straight: LVM-grade trucks only, guaranteed clean, for +5 on the card. Silence for a moment, then a dry chuckle: "Son, you've delivered me two trucks. One of them had stain in it — yesterday." The +5 ask from a two-week-old supplier reads as green, and you can hear it cost you a point of something. But he doesn't hang up — he counters, and the counter is real:
+ KORNBEST PROPOSAL — Q4 supply arrangement
+ · You commit: ≥100 m³/month, October–December,
+   LVM-origin loads ONLY ("LVM paper or it doesn't count")
+ · They pay: +3 €/m³ on 18–25 and 26+ brackets,
+   settled as a month-end bonus IF the volume lands
+ · Miss a month → no bonus, and "we'd have a conversation"
+ · Village wood: still welcome, separate stream, card price
+[Design adds, both adopted: your fail-consequence system — negotiation asks now carry relationship stakes; overreach costs warmth, broken commitments cost trust, and trust is regained only through consistent clean delivery. And from their side: the retro-bonus contract structure — premium paid only when the monthly volume lands is exactly how mills buy loyalty without repricing the card, and it quietly transfers commitment risk to you.]
+Day 15, Lot #4502 closes. SILVATRANS came to win on home turf. The last four minutes:
+ 13:56  SILVATRANS  €85 → your proxy €86
+ 13:58  SILVATRANS  €87 → your proxy €88
+ 13:59  SILVATRANS  €89 → your proxy €90
+ 14:00  ── no response ──  SOLD: YOU, €90/m³ · €5,490
+Their walk-away was €89. Yours didn't exist — so you paid €5/m³ more than last week for the same forest's wood. The deal forecast panel does the arithmetic without comment: at KORNBEST's card, even with the +3 bonus, this lot projects between −€250 and breakeven. You bought a flag on SILVATRANS's lawn; the wood came free with it.
+[Design note, important: the auction UI must refuse an uncapped auto-bid — "no matter what" shouldn't be an enterable value. Forcing a number into the max-bid field before bidding opens is how the game teaches the discipline real traders learn expensively.]
+Day 16, Lot #4507. The big mixed lot draws exactly one rival — MEŽAVOTS, a small Zemgale outfit — who taps out at €68. Yours at €69/m³: €9,660 for 140 m³. This one the forecast likes: ~80 m³ pulp to GRANEXO at 62, ~60 m³ veneer logs upstream, projected +€900 to +€1,300 even after five trucks of transport. Bought at your number, not at your pride. Feel the difference.
+Then the ledger speaks:
+════════════════════════════════════════════════════════
+ Day 17 · CASH POSITION — read this slowly
+────────────────────────────────────────────────────────
+ FREE CASH ·············· €15,011
+ OWED TO LVM ············ €14,150  (Day 25 & 26, after deposits)
+ → CASH AFTER PAYING ····· €861
+ RECEIVABLES ············ €5,958 (Day 28) + €2,358 (Day 33)
+ UNMOVED WOOD ··········· 201 m³ across two roadsides
+ TRANSPORT NEEDED ······· ~€2,500 — money you will not have
+                           until Day 28
+════════════════════════════════════════════════════════
+I've sequenced the obvious part for you: LVM gets paid at deadline, not before — paying early buys nothing, and those days of buffer are all you own. But the shape of your next ten days is set: you are rich in wood and poor in everything else. Two hundred cubes you can't haul, €861 against the world, and every ticking day is warm-ish September air on veneer logs cut weeks ago. This is the feeling the whole game was designed around. Welcome.
+Naturally, that's when the phone rings. Day 17, evening — the Ķegums brother-in-law: 35 m³ of thick birch, felled last week — genuinely fresh, the thing your Ogre loads weren't — €80/m³, agreed volume, money in a few days, "Jānis said you're the one who pays." €2,800 you do not have. Your reputation was built on paying fast; now the network tests whether it's true.
+On the table:
+
+KORNBEST's Q4 offer — accept, decline, or push (pushing now, after the +5 landed flat, is the move with teeth in it). Note what accepting means: 100 m³ of LVM-origin wood every month, which chains you to winning auctions — possibly against a SILVATRANS who now bids you up out of spite.
+Ķegums — decline politely, ask him to hold a week (fresh wood keeps; will he?), or the dangerous option: ask a village supplier for payment terms and spend reputation you've only just minted.
+Haul order for Day 28 when money returns — which wood moves first: the €90 prestige logs aging in Vidzeme, or the profitable mixed lot in Zemgale?

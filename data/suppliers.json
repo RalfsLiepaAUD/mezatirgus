@@ -1,0 +1,128 @@
+{
+    "schemaVersion":  1,
+    "configId":  "config.suppliers.v1",
+    "records":  [
+                    {
+                        "id":  "supplier.liepa_owner",
+                        "schemaVersion":  1,
+                        "displayName":  "Liepa Private Forest Owner",
+                        "active":  true,
+                        "provenanceId":  "prov.placeholder",
+                        "fictional":  true,
+                        "locationId":  "location.silava_roadside",
+                        "archetype":  "PRIVATE_FOREST_OWNER",
+                        "channels":  [
+                                         "PRIVATE_ROADSIDE_OFFER"
+                                     ],
+                        "suppliedSpeciesIds":  [
+                                                   "species.birch",
+                                                   "species.spruce"
+                                               ],
+                        "suppliedAssortmentIds":  [
+                                                      "assortment.sawlogs",
+                                                      "assortment.pulpwood"
+                                                  ],
+                        "paymentExpectation":  {
+                                                   "kind":  "BUSINESS_DAYS",
+                                                   "amount":  {
+                                                                  "value":  2,
+                                                                  "unit":  "BUSINESS_DAY",
+                                                                  "provenanceId":  "prov.placeholder"
+                                                              }
+                                               },
+                        "documentReliability":  {
+                                                    "value":  6500,
+                                                    "unit":  "BASIS_POINT",
+                                                    "provenanceId":  "prov.placeholder"
+                                                },
+                        "initialRelationship":  {
+                                                    "value":  2500,
+                                                    "unit":  "BASIS_POINT",
+                                                    "provenanceId":  "prov.placeholder"
+                                                }
+                    },
+                    {
+                        "id":  "supplier.ozols_crew",
+                        "schemaVersion":  1,
+                        "displayName":  "Ozols Harvesting Crew",
+                        "active":  true,
+                        "provenanceId":  "prov.placeholder",
+                        "fictional":  true,
+                        "locationId":  "location.latgale_node",
+                        "archetype":  "SMALL_HARVESTING_CREW",
+                        "channels":  [
+                                         "RECURRING_CONTACT",
+                                         "PRIVATE_ROADSIDE_OFFER"
+                                     ],
+                        "suppliedSpeciesIds":  [
+                                                   "species.birch",
+                                                   "species.aspen"
+                                               ],
+                        "suppliedAssortmentIds":  [
+                                                      "assortment.veneer_logs",
+                                                      "assortment.pulpwood",
+                                                      "assortment.energy_wood"
+                                                  ],
+                        "paymentExpectation":  {
+                                                   "kind":  "BUSINESS_DAYS",
+                                                   "amount":  {
+                                                                  "value":  3,
+                                                                  "unit":  "BUSINESS_DAY",
+                                                                  "provenanceId":  "prov.placeholder"
+                                                              }
+                                               },
+                        "documentReliability":  {
+                                                    "value":  8000,
+                                                    "unit":  "BASIS_POINT",
+                                                    "provenanceId":  "prov.placeholder"
+                                                },
+                        "initialRelationship":  {
+                                                    "value":  4000,
+                                                    "unit":  "BASIS_POINT",
+                                                    "provenanceId":  "prov.placeholder"
+                                                }
+                    },
+                    {
+                        "id":  "supplier.baltais_trader",
+                        "schemaVersion":  1,
+                        "displayName":  "Baltais Regional Timber Trader",
+                        "active":  true,
+                        "provenanceId":  "prov.placeholder",
+                        "fictional":  true,
+                        "locationId":  "location.zemgale_node",
+                        "archetype":  "REGIONAL_TIMBER_TRADER",
+                        "channels":  [
+                                         "TRADER_SPOT",
+                                         "PREPARED_ROUNDWOOD_AUCTION"
+                                     ],
+                        "suppliedSpeciesIds":  [
+                                                   "species.pine",
+                                                   "species.spruce",
+                                                   "species.birch"
+                                               ],
+                        "suppliedAssortmentIds":  [
+                                                      "assortment.sawlogs",
+                                                      "assortment.pulpwood",
+                                                      "assortment.energy_wood"
+                                                  ],
+                        "paymentExpectation":  {
+                                                   "kind":  "CALENDAR_DAYS",
+                                                   "amount":  {
+                                                                  "value":  10,
+                                                                  "unit":  "CALENDAR_DAY",
+                                                                  "provenanceId":  "prov.placeholder"
+                                                              }
+                                               },
+                        "documentReliability":  {
+                                                    "value":  9200,
+                                                    "unit":  "BASIS_POINT",
+                                                    "provenanceId":  "prov.placeholder"
+                                                },
+                        "initialRelationship":  {
+                                                    "value":  1500,
+                                                    "unit":  "BASIS_POINT",
+                                                    "provenanceId":  "prov.placeholder"
+                                                }
+                    }
+                ]
+}

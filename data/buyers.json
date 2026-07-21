@@ -1,0 +1,138 @@
+{
+    "schemaVersion":  1,
+    "configId":  "config.buyers.v1",
+    "records":  [
+                    {
+                        "id":  "buyer.daugava_veneer",
+                        "schemaVersion":  1,
+                        "displayName":  "Daugava Veneer Works",
+                        "active":  true,
+                        "provenanceId":  "prov.design.locked",
+                        "fictional":  true,
+                        "locationId":  "location.daugava_buyer",
+                        "buyerType":  "BIRCH_VENEER",
+                        "compatibility":  [
+                                              {
+                                                  "speciesId":  "species.birch",
+                                                  "assortmentId":  "assortment.veneer_logs",
+                                                  "accepted":  true,
+                                                  "provenanceId":  "prov.design.locked"
+                                              },
+                                              {
+                                                  "speciesId":  "species.birch",
+                                                  "assortmentId":  "assortment.pulpwood",
+                                                  "accepted":  false,
+                                                  "provenanceId":  "prov.design.locked"
+                                              }
+                                          ],
+                        "behaviorNotes":  [
+                                              "Fictional specialist archetype; immutable compatibility only."
+                                          ]
+                    },
+                    {
+                        "id":  "buyer.gauja_sawmill",
+                        "schemaVersion":  1,
+                        "displayName":  "Gauja Sawmill",
+                        "active":  true,
+                        "provenanceId":  "prov.design.locked",
+                        "fictional":  true,
+                        "locationId":  "location.cesis",
+                        "buyerType":  "CONIFER_SAWMILL",
+                        "compatibility":  [
+                                              {
+                                                  "speciesId":  "species.spruce",
+                                                  "assortmentId":  "assortment.sawlogs",
+                                                  "accepted":  true,
+                                                  "provenanceId":  "prov.design.locked"
+                                              },
+                                              {
+                                                  "speciesId":  "species.pine",
+                                                  "assortmentId":  "assortment.sawlogs",
+                                                  "accepted":  true,
+                                                  "provenanceId":  "prov.design.locked"
+                                              },
+                                              {
+                                                  "speciesId":  "species.birch",
+                                                  "assortmentId":  "assortment.veneer_logs",
+                                                  "accepted":  false,
+                                                  "provenanceId":  "prov.design.locked"
+                                              }
+                                          ],
+                        "behaviorNotes":  [
+                                              "Fictional conifer specialist."
+                                          ]
+                    },
+                    {
+                        "id":  "buyer.zemgale_pulp",
+                        "schemaVersion":  1,
+                        "displayName":  "Zemgale Fibre Terminal",
+                        "active":  true,
+                        "provenanceId":  "prov.design.locked",
+                        "fictional":  true,
+                        "locationId":  "location.zemgale_node",
+                        "buyerType":  "PULPWOOD",
+                        "compatibility":  [
+                                              {
+                                                  "speciesId":  "species.birch",
+                                                  "assortmentId":  "assortment.pulpwood",
+                                                  "accepted":  true,
+                                                  "provenanceId":  "prov.design.locked"
+                                              },
+                                              {
+                                                  "speciesId":  "species.spruce",
+                                                  "assortmentId":  "assortment.pulpwood",
+                                                  "accepted":  true,
+                                                  "provenanceId":  "prov.design.locked"
+                                              },
+                                              {
+                                                  "speciesId":  "species.birch",
+                                                  "assortmentId":  "assortment.veneer_logs",
+                                                  "accepted":  false,
+                                                  "provenanceId":  "prov.design.locked"
+                                              }
+                                          ],
+                        "behaviorNotes":  [
+                                              "Fictional pulpwood specialist."
+                                          ]
+                    },
+                    {
+                        "id":  "buyer.kurzeme_energy",
+                        "schemaVersion":  1,
+                        "displayName":  "Kurzeme Energy Wood",
+                        "active":  true,
+                        "provenanceId":  "prov.design.locked",
+                        "fictional":  true,
+                        "locationId":  "location.kurzeme_node",
+                        "buyerType":  "ENERGY",
+                        "compatibility":  [
+                                              {
+                                                  "speciesId":  "species.birch",
+                                                  "assortmentId":  "assortment.energy_wood",
+                                                  "accepted":  true,
+                                                  "provenanceId":  "prov.design.locked"
+                                              },
+                                              {
+                                                  "speciesId":  "species.spruce",
+                                                  "assortmentId":  "assortment.energy_wood",
+                                                  "accepted":  true,
+                                                  "provenanceId":  "prov.design.locked"
+                                              },
+                                              {
+                                                  "speciesId":  "species.birch",
+                                                  "assortmentId":  "assortment.veneer_logs",
+                                                  "accepted":  false,
+                                                  "provenanceId":  "prov.design.locked"
+                                              },
+                                              {
+                                                  "speciesId":  "species.birch",
+                                                  "assortmentId":  "assortment.pulpwood",
+                                                  "accepted":  false,
+                                                  "provenanceId":  "prov.design.locked"
+                                              }
+                                          ],
+                        "behaviorNotes":  [
+                                              "Fictional energy specialist."
+                                          ]
+                    }
+                ]
+}

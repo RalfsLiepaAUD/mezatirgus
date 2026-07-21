@@ -1,0 +1,5 @@
+export type DeadlineRule={kind:"CALENDAR_SECONDS";amount:number}|{kind:"CALENDAR_DAYS";amount:number}|{kind:"BUSINESS_DAYS";amount:number};
+const DAY=86400;
+export function dayOfWeek(timestamp:number):number{if(!Number.isSafeInteger(timestamp)||timestamp<0)throw new Error("Invalid timestamp");return(Math.floor(timestamp/DAY)+3)%7;}
+export function applyDeadline(start:number,rule:DeadlineRule):number{if(!Number.isSafeInteger(start)||start<0||!Number.isSafeInteger(rule.amount)||rule.amount<0)throw new Error("Invalid deadline");if(rule.kind==="CALENDAR_SECONDS")return start+rule.amount;if(rule.kind==="CALENDAR_DAYS")return start+rule.amount*DAY;let result=start,remaining=rule.amount;while(remaining>0){result+=DAY;const day=dayOfWeek(result);if(day<5)remaining--;}return result;}
+export const SECONDS_PER_DAY=DAY;

@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "configId": "config.transport.v1",
+  "records": [
+    {
+      "id": "transport.efficient_floor",
+      "schemaVersion": 1,
+      "displayName": "Efficient contracted or own-fleet floor",
+      "active": true,
+      "provenanceId": "prov.research.costs",
+      "tier": "EFFICIENT_CONTRACTED_OR_OWN_FLEET",
+      "baseRate": {
+        "value": 400,
+        "unit": "MINOR_UNIT_PER_CUBIC_METRE",
+        "provenanceId": "prov.research.costs"
+      },
+      "representativeDistance": {
+        "value": 78000,
+        "unit": "METRE",
+        "provenanceId": "prov.research.costs"
+      },
+      "isEarlyPlayerDefault": false
+    },
+    {
+      "id": "transport.small_trader_spot",
+      "schemaVersion": 1,
+      "displayName": "Small-trader spot market",
+      "active": true,
+      "provenanceId": "prov.research.costs",
+      "tier": "SMALL_TRADER_SPOT",
+      "baseRate": {
+        "value": 1400,
+        "unit": "MINOR_UNIT_PER_CUBIC_METRE",
+        "provenanceId": "prov.tunable"
+      },
+      "representativeDistance": {
+        "value": 100000,
+        "unit": "METRE",
+        "provenanceId": "prov.research.costs"
+      },
+      "isEarlyPlayerDefault": true
+    }
+  ]
+}

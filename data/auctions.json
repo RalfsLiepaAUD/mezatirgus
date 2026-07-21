@@ -1,0 +1,137 @@
+{
+    "schemaVersion":  1,
+    "configId":  "config.auctions.v1",
+    "records":  [
+                    {
+                        "id":  "auction.deposit",
+                        "schemaVersion":  1,
+                        "displayName":  "Deposit assumption",
+                        "active":  true,
+                        "provenanceId":  "prov.auction.assumed",
+                        "parameter":  "DEPOSIT",
+                        "value":  {
+                                      "value":  1000,
+                                      "unit":  "BASIS_POINT",
+                                      "provenanceId":  "prov.auction.assumed"
+                                  },
+                        "valueProvenanceId":  "prov.auction.assumed"
+                    },
+                    {
+                        "id":  "auction.increment",
+                        "schemaVersion":  1,
+                        "displayName":  "Fixed bid increment",
+                        "active":  true,
+                        "provenanceId":  "prov.auction.assumed",
+                        "parameter":  "BID_INCREMENT",
+                        "value":  [
+                                      {
+                                          "value":  50,
+                                          "unit":  "MINOR_UNIT_PER_CUBIC_METRE",
+                                          "provenanceId":  "prov.auction.assumed"
+                                      },
+                                      {
+                                          "value":  100,
+                                          "unit":  "MINOR_UNIT_PER_CUBIC_METRE",
+                                          "provenanceId":  "prov.auction.assumed"
+                                      }
+                                  ],
+                        "valueProvenanceId":  "prov.auction.assumed"
+                    },
+                    {
+                        "id":  "auction.extension",
+                        "schemaVersion":  1,
+                        "displayName":  "Late-bid extension",
+                        "active":  true,
+                        "provenanceId":  "prov.auction.assumed",
+                        "parameter":  "LATE_BID_EXTENSION",
+                        "value":  {
+                                      "value":  120,
+                                      "unit":  "SIMULATION_SECOND",
+                                      "provenanceId":  "prov.auction.assumed"
+                                  },
+                        "valueProvenanceId":  "prov.auction.assumed"
+                    },
+                    {
+                        "id":  "auction.payment",
+                        "schemaVersion":  1,
+                        "displayName":  "Payment deadline",
+                        "active":  true,
+                        "provenanceId":  "prov.auction.assumed",
+                        "parameter":  "PAYMENT_DEADLINE",
+                        "value":  {
+                                      "kind":  "BUSINESS_DAYS",
+                                      "amount":  {
+                                                     "value":  3,
+                                                     "unit":  "BUSINESS_DAY",
+                                                     "provenanceId":  "prov.auction.assumed"
+                                                 }
+                                  },
+                        "valueProvenanceId":  "prov.auction.assumed"
+                    },
+                    {
+                        "id":  "auction.removal",
+                        "schemaVersion":  1,
+                        "displayName":  "Removal deadline",
+                        "active":  true,
+                        "provenanceId":  "prov.auction.assumed",
+                        "parameter":  "REMOVAL_DEADLINE",
+                        "value":  {
+                                      "kind":  "CALENDAR_DAYS",
+                                      "amount":  {
+                                                     "value":  30,
+                                                     "unit":  "CALENDAR_DAY",
+                                                     "provenanceId":  "prov.auction.assumed"
+                                                 }
+                                  },
+                        "valueProvenanceId":  "prov.auction.assumed"
+                    },
+                    {
+                        "id":  "auction.penalty",
+                        "schemaVersion":  1,
+                        "displayName":  "Non-removal penalty",
+                        "active":  true,
+                        "provenanceId":  "prov.auction.assumed",
+                        "parameter":  "NON_REMOVAL_PENALTY",
+                        "value":  {
+                                      "value":  100,
+                                      "unit":  "MINOR_UNIT_PER_CUBIC_METRE_PER_DAY",
+                                      "provenanceId":  "prov.auction.assumed"
+                                  },
+                        "valueProvenanceId":  "prov.auction.assumed"
+                    },
+                    {
+                        "id":  "auction.tolerance",
+                        "schemaVersion":  1,
+                        "displayName":  "Volume tolerance",
+                        "active":  true,
+                        "provenanceId":  "prov.auction.assumed",
+                        "parameter":  "VOLUME_TOLERANCE",
+                        "value":  {
+                                      "value":  200,
+                                      "unit":  "BASIS_POINT",
+                                      "provenanceId":  "prov.auction.assumed"
+                                  },
+                        "valueProvenanceId":  "prov.auction.assumed"
+                    },
+                    {
+                        "id":  "auction.transfer",
+                        "schemaVersion":  1,
+                        "displayName":  "Title and risk transfer",
+                        "active":  true,
+                        "provenanceId":  "prov.auction.assumed",
+                        "parameter":  "TITLE_RISK_TRANSFER",
+                        "value":  "ON_FULL_PAYMENT",
+                        "valueProvenanceId":  "prov.auction.assumed"
+                    },
+                    {
+                        "id":  "auction.results",
+                        "schemaVersion":  1,
+                        "displayName":  "Public results practice",
+                        "active":  true,
+                        "provenanceId":  "prov.auction.results",
+                        "parameter":  "PUBLIC_RESULTS",
+                        "value":  true,
+                        "valueProvenanceId":  "prov.auction.results"
+                    }
+                ]
+}

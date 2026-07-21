@@ -1,0 +1,214 @@
+{
+  "schemaVersion": 1,
+  "configId": "config.quality.v1",
+  "records": [
+    {
+      "id": "quality.birch.a",
+      "schemaVersion": 1,
+      "displayName": "Birch A",
+      "active": true,
+      "provenanceId": "prov.firsthand.quality",
+      "kind": "grade",
+      "speciesId": "species.birch",
+      "code": "A"
+    },
+    {
+      "id": "quality.birch.b",
+      "schemaVersion": 1,
+      "displayName": "Birch B",
+      "active": true,
+      "provenanceId": "prov.firsthand.quality",
+      "kind": "grade",
+      "speciesId": "species.birch",
+      "code": "B"
+    },
+    {
+      "id": "quality.birch.tara_c",
+      "schemaVersion": 1,
+      "displayName": "Tara / C",
+      "active": true,
+      "provenanceId": "prov.firsthand.quality",
+      "kind": "grade",
+      "speciesId": "species.birch",
+      "code": "TARA_C"
+    },
+    {
+      "id": "quality.birch.brakis",
+      "schemaVersion": 1,
+      "displayName": "Brāķis",
+      "active": true,
+      "provenanceId": "prov.firsthand.quality",
+      "kind": "grade",
+      "speciesId": "species.birch",
+      "code": "BRAKIS"
+    },
+    {
+      "id": "diameter.under_18_cm",
+      "schemaVersion": 1,
+      "displayName": "Under 18 cm",
+      "active": true,
+      "provenanceId": "prov.research.buyers",
+      "kind": "diameter_bracket",
+      "code": "UNDER_18",
+      "minDiameter": {
+        "value": 0,
+        "unit": "MILLIMETRE",
+        "provenanceId": "prov.research.buyers"
+      },
+      "maxDiameter": {
+        "value": 179,
+        "unit": "MILLIMETRE",
+        "provenanceId": "prov.research.buyers"
+      }
+    },
+    {
+      "id": "diameter.18_25_cm",
+      "schemaVersion": 1,
+      "displayName": "18–25 cm",
+      "active": true,
+      "provenanceId": "prov.research.buyers",
+      "kind": "diameter_bracket",
+      "code": "FROM_18_TO_25",
+      "minDiameter": {
+        "value": 180,
+        "unit": "MILLIMETRE",
+        "provenanceId": "prov.research.buyers"
+      },
+      "maxDiameter": {
+        "value": 259,
+        "unit": "MILLIMETRE",
+        "provenanceId": "prov.research.buyers"
+      }
+    },
+    {
+      "id": "diameter.26_plus_cm",
+      "schemaVersion": 1,
+      "displayName": "26+ cm",
+      "active": true,
+      "provenanceId": "prov.research.buyers",
+      "kind": "diameter_bracket",
+      "code": "FROM_26",
+      "minDiameter": {
+        "value": 260,
+        "unit": "MILLIMETRE",
+        "provenanceId": "prov.research.buyers"
+      },
+      "maxDiameter": null
+    },
+    {
+      "id": "tara_reason.under_diameter",
+      "schemaVersion": 1,
+      "displayName": "Tara: under diameter",
+      "active": true,
+      "provenanceId": "prov.design.locked",
+      "kind": "tara_entry_reason",
+      "code": "under_diameter"
+    },
+    {
+      "id": "tara_reason.poor_form",
+      "schemaVersion": 1,
+      "displayName": "Tara: poor form",
+      "active": true,
+      "provenanceId": "prov.design.locked",
+      "kind": "tara_entry_reason",
+      "code": "poor_form"
+    },
+    {
+      "id": "certainty.unknown",
+      "schemaVersion": 1,
+      "displayName": "unknown",
+      "active": true,
+      "provenanceId": "prov.design.locked",
+      "kind": "certainty_state",
+      "code": "unknown"
+    },
+    {
+      "id": "certainty.seller_claimed",
+      "schemaVersion": 1,
+      "displayName": "seller claimed",
+      "active": true,
+      "provenanceId": "prov.design.locked",
+      "kind": "certainty_state",
+      "code": "seller_claimed"
+    },
+    {
+      "id": "certainty.estimated",
+      "schemaVersion": 1,
+      "displayName": "estimated",
+      "active": true,
+      "provenanceId": "prov.design.locked",
+      "kind": "certainty_state",
+      "code": "estimated"
+    },
+    {
+      "id": "certainty.inspected",
+      "schemaVersion": 1,
+      "displayName": "inspected",
+      "active": true,
+      "provenanceId": "prov.design.locked",
+      "kind": "certainty_state",
+      "code": "inspected"
+    },
+    {
+      "id": "certainty.sorted",
+      "schemaVersion": 1,
+      "displayName": "sorted",
+      "active": true,
+      "provenanceId": "prov.design.locked",
+      "kind": "certainty_state",
+      "code": "sorted"
+    },
+    {
+      "id": "certainty.measured",
+      "schemaVersion": 1,
+      "displayName": "measured",
+      "active": true,
+      "provenanceId": "prov.design.locked",
+      "kind": "certainty_state",
+      "code": "measured"
+    },
+    {
+      "id": "composition.birch.average",
+      "schemaVersion": 1,
+      "displayName": "Average birch composition",
+      "active": true,
+      "provenanceId": "prov.firsthand.quality",
+      "kind": "composition_profile",
+      "speciesId": "species.birch",
+      "proportions": [
+        {
+          "qualityGradeId": "quality.birch.a",
+          "proportion": {
+            "value": 500,
+            "unit": "BASIS_POINT",
+            "provenanceId": "prov.tunable"
+          }
+        },
+        {
+          "qualityGradeId": "quality.birch.b",
+          "proportion": {
+            "value": 5000,
+            "unit": "BASIS_POINT",
+            "provenanceId": "prov.tunable"
+          }
+        },
+        {
+          "qualityGradeId": "quality.birch.tara_c",
+          "proportion": {
+            "value": 4000,
+            "unit": "BASIS_POINT",
+            "provenanceId": "prov.tunable"
+          }
+        },
+        {
+          "qualityGradeId": "quality.birch.brakis",
+          "proportion": {
+            "value": 500,
+            "unit": "BASIS_POINT",
+            "provenanceId": "prov.tunable"
+          }
+        }
+      ]
+    }
+  ]
+}

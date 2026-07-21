@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "configId": "config.markets.v1",
+  "records": [
+    {
+      "id": "market.birch_veneer",
+      "schemaVersion": 1,
+      "displayName": "Birch veneer reference",
+      "active": true,
+      "provenanceId": "prov.research.costs",
+      "speciesId": "species.birch",
+      "assortmentId": "assortment.veneer_logs",
+      "referenceRate": {
+        "value": 10000,
+        "unit": "MINOR_UNIT_PER_CUBIC_METRE",
+        "provenanceId": "prov.research.costs"
+      }
+    },
+    {
+      "id": "market.spruce_sawlog",
+      "schemaVersion": 1,
+      "displayName": "Spruce sawlog reference",
+      "active": true,
+      "provenanceId": "prov.research.costs",
+      "speciesId": "species.spruce",
+      "assortmentId": "assortment.sawlogs",
+      "referenceRate": {
+        "value": 9200,
+        "unit": "MINOR_UNIT_PER_CUBIC_METRE",
+        "provenanceId": "prov.research.costs"
+      }
+    },
+    {
+      "id": "market.birch_pulp",
+      "schemaVersion": 1,
+      "displayName": "Birch pulpwood reference",
+      "active": true,
+      "provenanceId": "prov.research.costs",
+      "speciesId": "species.birch",
+      "assortmentId": "assortment.pulpwood",
+      "referenceRate": {
+        "value": 5500,
+        "unit": "MINOR_UNIT_PER_CUBIC_METRE",
+        "provenanceId": "prov.research.costs"
+      }
+    },
+    {
+      "id": "market.birch_energy",
+      "schemaVersion": 1,
+      "displayName": "Birch energy reference",
+      "active": true,
+      "provenanceId": "prov.research.costs",
+      "speciesId": "species.birch",
+      "assortmentId": "assortment.energy_wood",
+      "referenceRate": {
+        "value": 4200,
+        "unit": "MINOR_UNIT_PER_CUBIC_METRE",
+        "provenanceId": "prov.research.costs"
+      }
+    }
+  ]
+}

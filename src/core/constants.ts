@@ -1,0 +1,13 @@
+export const CORE_VERSION = "0.11.0";
+export const SAVE_SCHEMA_VERSION = 10;
+export const SNAPSHOT_SCHEMA_VERSION = 10;
+export const EVENT_SCHEMA_VERSION = 1;
+export const COMMAND_SCHEMA_VERSION = 1;
+export const TICK_MODEL_VERSION = 1;
+export const TICK_DURATION_SECONDS = 3600;
+export const NORMAL_GAME_SECONDS_PER_WALL_SECOND_NUMERATOR = 6048;
+export const NORMAL_GAME_SECONDS_PER_WALL_SECOND_DENOMINATOR = 1;
+export const SNAPSHOT_INTERVAL_TICKS_PLACEHOLDER = 168;
+export const SPEED_MULTIPLIERS = { "1X": 1, "3X": 3, FAST: 10 } as const;
+export type SimulationSpeed = keyof typeof SPEED_MULTIPLIERS;
+export const RNG_STREAM_NAMES = ["core","market","buyer","supplier","transport","auction","competitor","forest","measurement","events"] as const;

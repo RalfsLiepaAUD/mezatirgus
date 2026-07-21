@@ -1,0 +1,273 @@
+{
+  "saveSchemaVersion": 7,
+  "coreVersion": "0.8.0",
+  "configurationBundleVersion": "1.0.0",
+  "configurationHash": "59e622fa0d5aa90f3e1b28e63269d386eb7333655a7067911106de181a9fd66b",
+  "scenarioId": "scenario.first_full",
+  "seed": "meztrigus-step-2-demo",
+  "currentGameTime": 10800,
+  "paused": true,
+  "selectedSpeed": "1X",
+  "entityCounterState": {
+    "event": 9
+  },
+  "rngStreamStates": {
+    "events": {
+      "stateHex": "b4c40555b1cf87f4",
+      "drawCount": 2
+    }
+  },
+  "eventInsertionCounter": 9,
+  "snapshotSequence": 1,
+  "snapshot": {
+    "snapshotSchemaVersion": 7,
+    "snapshotSequence": 1,
+    "createdGameTime": 0,
+    "eventLogIndex": 3,
+    "state": {
+      "seed": "meztrigus-step-2-demo",
+      "configurationBundleVersion": "1.0.0",
+      "configurationHash": "59e622fa0d5aa90f3e1b28e63269d386eb7333655a7067911106de181a9fd66b",
+      "scenarioId": "scenario.first_full",
+      "clock": {
+        "currentGameTime": 0,
+        "paused": false,
+        "speed": "1X",
+        "wallRemainderNumerator": "0"
+      },
+      "entityCounters": {
+        "event": 5
+      },
+      "rngStreams": {},
+      "scheduledEvents": [
+        {
+          "eventId": "EVENT-000002",
+          "eventType": "DiagnosticEventOccurred",
+          "scheduledGameTime": 3600,
+          "phase": 10,
+          "actorId": "actor.system",
+          "targetIds": [],
+          "parentCauseId": "CMD-000002",
+          "schemaVersion": 1,
+          "visibility": "PUBLIC",
+          "payload": {
+            "message": "Mežtirgus diagnostic A",
+            "useRng": true
+          },
+          "insertionSequence": 2
+        },
+        {
+          "eventId": "EVENT-000004",
+          "eventType": "DiagnosticEventOccurred",
+          "scheduledGameTime": 3600,
+          "phase": 10,
+          "actorId": "actor.system",
+          "targetIds": [],
+          "parentCauseId": "CMD-000003",
+          "schemaVersion": 1,
+          "visibility": "PLAYER_PRIVATE",
+          "payload": {
+            "message": "Cēsis diagnostic B",
+            "useRng": true
+          },
+          "insertionSequence": 4
+        }
+      ],
+      "eventInsertionCounter": 5,
+      "finance": {
+        "appliedEventIds": [],
+        "companies": [],
+        "accounts": [],
+        "transactions": [],
+        "commitments": [],
+        "receivables": [],
+        "payables": [],
+        "loans": [],
+        "creditFacilities": []
+      },
+      "routing": {
+        "appliedEventIds": [],
+        "locations": [],
+        "edges": []
+      },
+      "inventory": {
+        "appliedEventIds": [],
+        "deals": [],
+        "lots": [],
+        "batches": [],
+        "loads": [],
+        "reservations": [],
+        "allocations": [],
+        "costLayers": []
+      },
+      "buyers": {
+        "appliedEventIds": [],
+        "buyers": [],
+        "priceCards": [],
+        "measurements": []
+      },
+      "suppliers": {
+        "appliedEventIds": [],
+        "suppliers": [],
+        "contacts": [],
+        "relationships": [],
+        "offers": [],
+        "documentSets": [],
+        "documents": [],
+        "intelItems": []
+      },
+      "transport": {
+        "appliedEventIds": [],
+        "carriers": [],
+        "quotes": [],
+        "jobs": []
+      }
+    },
+    "snapshotChecksum": "c10c790e54af90964ddf3389d3a4489dae863a8e5f940816c59e49fbe26766e8"
+  },
+  "eventsAfterSnapshot": [
+    {
+      "eventId": "EVENT-000006",
+      "eventType": "ClockAdvanced",
+      "gameTime": 3600,
+      "phase": 1,
+      "targetIds": [],
+      "schemaVersion": 1,
+      "visibility": "DEBUG_ONLY",
+      "payload": {
+        "currentGameTime": 3600
+      },
+      "insertionSequence": 6,
+      "eventHash": "8696a45dc7fd89559c376e063b0556fcb50c55dcf882ba2b56068e908661833a"
+    },
+    {
+      "eventId": "EVENT-000002",
+      "eventType": "DiagnosticEventOccurred",
+      "gameTime": 3600,
+      "phase": 10,
+      "actorId": "actor.system",
+      "targetIds": [],
+      "parentCauseId": "CMD-000002",
+      "schemaVersion": 1,
+      "visibility": "PUBLIC",
+      "payload": {
+        "message": "Mežtirgus diagnostic A",
+        "useRng": true,
+        "rngValue": 1025006484,
+        "rngDrawCount": 1
+      },
+      "insertionSequence": 2,
+      "eventHash": "9fa0f5c459e72f24936eb21bbe43e2c5b9b7424cefb4e0381fec5f4c6f7c5026"
+    },
+    {
+      "eventId": "EVENT-000004",
+      "eventType": "DiagnosticEventOccurred",
+      "gameTime": 3600,
+      "phase": 10,
+      "actorId": "actor.system",
+      "targetIds": [],
+      "parentCauseId": "CMD-000003",
+      "schemaVersion": 1,
+      "visibility": "PLAYER_PRIVATE",
+      "payload": {
+        "message": "Cēsis diagnostic B",
+        "useRng": true,
+        "rngValue": 1885939880,
+        "rngDrawCount": 2
+      },
+      "insertionSequence": 4,
+      "eventHash": "88d077e8135d2267a8b9fb027141a04d7f3b06c6b4d312a2e93c5afa13ca3747"
+    },
+    {
+      "eventId": "EVENT-000007",
+      "eventType": "ClockAdvanced",
+      "gameTime": 7200,
+      "phase": 1,
+      "targetIds": [],
+      "schemaVersion": 1,
+      "visibility": "DEBUG_ONLY",
+      "payload": {
+        "currentGameTime": 7200
+      },
+      "insertionSequence": 7,
+      "eventHash": "bd3d056678e8c36ea3c3148954ff200b784697313a8d108f34c7ae410373fab5"
+    },
+    {
+      "eventId": "EVENT-000008",
+      "eventType": "ClockAdvanced",
+      "gameTime": 10800,
+      "phase": 1,
+      "targetIds": [],
+      "schemaVersion": 1,
+      "visibility": "DEBUG_ONLY",
+      "payload": {
+        "currentGameTime": 10800
+      },
+      "insertionSequence": 8,
+      "eventHash": "20cced95c3e77a1b03f1315decd35c8b860395f2e9e4fbeb7d4c669a4edf3699"
+    },
+    {
+      "eventId": "EVENT-000009",
+      "eventType": "SimulationPaused",
+      "gameTime": 10800,
+      "phase": 1,
+      "actorId": "actor.system",
+      "targetIds": [],
+      "parentCauseId": "CMD-000004",
+      "schemaVersion": 1,
+      "visibility": "DEBUG_ONLY",
+      "payload": {},
+      "insertionSequence": 9,
+      "eventHash": "f3961bb5a650d582cd28bf8624fc87889bb94f1776b22580c2bd045b4da13669"
+    }
+  ],
+  "commandHistory": [
+    {
+      "commandId": "CMD-000001",
+      "commandType": "ResumeSimulation",
+      "issuedGameTime": 0,
+      "requestedExecutionTime": 0,
+      "actorId": "actor.system",
+      "payload": {},
+      "schemaVersion": 1
+    },
+    {
+      "commandId": "CMD-000002",
+      "commandType": "ScheduleDiagnosticEvent",
+      "issuedGameTime": 0,
+      "requestedExecutionTime": 3600,
+      "actorId": "actor.system",
+      "payload": {
+        "message": "Mežtirgus diagnostic A",
+        "useRng": true,
+        "visibility": "PUBLIC"
+      },
+      "schemaVersion": 1
+    },
+    {
+      "commandId": "CMD-000003",
+      "commandType": "ScheduleDiagnosticEvent",
+      "issuedGameTime": 0,
+      "requestedExecutionTime": 3600,
+      "actorId": "actor.system",
+      "payload": {
+        "message": "Cēsis diagnostic B",
+        "useRng": true,
+        "visibility": "PLAYER_PRIVATE"
+      },
+      "schemaVersion": 1
+    },
+    {
+      "commandId": "CMD-000004",
+      "commandType": "PauseSimulation",
+      "issuedGameTime": 10800,
+      "requestedExecutionTime": 10800,
+      "actorId": "actor.system",
+      "payload": {},
+      "schemaVersion": 1
+    }
+  ],
+  "playerPreferences": {},
+  "authoritativeStateChecksum": "91529c9b278122f0cbcfcdd5337d9373f039997f55704085a339ff8298ba4967",
+  "saveChecksum": "aa84a3c068e60e4bac0a36b6824cd597198a90e1f61da0ee23804faeef87e2bf"
+}

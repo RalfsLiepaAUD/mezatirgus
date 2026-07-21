@@ -1,0 +1,20 @@
+{
+    "schemaVersion":  1,
+    "configId":  "config.ports.v1",
+    "records":  [
+                    {
+                        "id":  "port.venta_terminal",
+                        "schemaVersion":  1,
+                        "displayName":  "Venta Timber Terminal",
+                        "active":  true,
+                        "provenanceId":  "prov.placeholder",
+                        "fictional":  true,
+                        "locationId":  "location.ventspils_port",
+                        "capacity":  {
+                                         "value":  5000000,
+                                         "unit":  "VOLUME_MILLI_CUBIC_METRE",
+                                         "provenanceId":  "prov.placeholder"
+                                     }
+                    }
+                ]
+}

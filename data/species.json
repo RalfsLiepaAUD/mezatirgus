@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "configId": "config.species.v1",
+  "records": [
+    {
+      "id": "species.birch",
+      "schemaVersion": 1,
+      "displayName": "Birch",
+      "active": true,
+      "provenanceId": "prov.design.locked",
+      "code": "birch"
+    },
+    {
+      "id": "species.spruce",
+      "schemaVersion": 1,
+      "displayName": "Spruce",
+      "active": true,
+      "provenanceId": "prov.design.locked",
+      "code": "spruce"
+    },
+    {
+      "id": "species.pine",
+      "schemaVersion": 1,
+      "displayName": "Pine",
+      "active": true,
+      "provenanceId": "prov.design.locked",
+      "code": "pine"
+    },
+    {
+      "id": "species.aspen",
+      "schemaVersion": 1,
+      "displayName": "Aspen",
+      "active": true,
+      "provenanceId": "prov.design.locked",
+      "code": "aspen"
+    },
+    {
+      "id": "species.alder",
+      "schemaVersion": 1,
+      "displayName": "Alder",
+      "active": true,
+      "provenanceId": "prov.design.locked",
+      "code": "alder"
+    },
+    {
+      "id": "species.oak",
+      "schemaVersion": 1,
+      "displayName": "Oak",
+      "active": true,
+      "provenanceId": "prov.design.locked",
+      "code": "oak"
+    }
+  ]
+}

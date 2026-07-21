@@ -1,0 +1,35 @@
+{
+    "schemaVersion":  1,
+    "configId":  "config.scenario.first_full.v1",
+    "records":  [
+                    {
+                        "id":  "scenario.first_full",
+                        "schemaVersion":  1,
+                        "displayName":  "Mežtirgus first full skeleton",
+                        "active":  true,
+                        "provenanceId":  "prov.design.locked",
+                        "playerCompanyDisplayName":  "Mežtirgus",
+                        "startingLocationId":  "location.meztrigus_yard",
+                        "buyerIds":  [
+                                         "buyer.daugava_veneer",
+                                         "buyer.gauja_sawmill",
+                                         "buyer.zemgale_pulp",
+                                         "buyer.kurzeme_energy"
+                                     ],
+                        "supplierIds":  [
+                                            "supplier.liepa_owner",
+                                            "supplier.ozols_crew",
+                                            "supplier.baltais_trader"
+                                        ],
+                        "forestIds":  [
+                                          "forest.cesis_starter"
+                                      ],
+                        "portIds":  [
+                                        "port.venta_terminal"
+                                    ],
+                        "externalDestinationLocationIds":  [
+                                                               "location.hamburg_destination"
+                                                           ]
+                    }
+                ]
+}

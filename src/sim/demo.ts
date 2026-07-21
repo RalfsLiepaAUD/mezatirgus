@@ -1,0 +1,16 @@
+import { mkdir, writeFile } from "node:fs/promises";
+import { resolve } from "node:path";
+import { loadConfigurationBundle } from "../config/load.js";
+import { command, SimulationEngine } from "../core/engine.js";
+import { TICK_DURATION_SECONDS } from "../core/constants.js";
+import { createSave, loadSave, serializeSave } from "../persistence/save.js";
+import { createSnapshot } from "../persistence/snapshot.js";
+const root=resolve(import.meta.dirname,"../..");
+const bundle=await loadConfigurationBundle(root);if(bundle.issues.some((x)=>x.severity==="error"))throw new Error("Step 1 configuration is invalid");
+const seed="meztrigus-step-2-demo";const engine=new SimulationEngine({seed,configurationBundleVersion:String((bundle.manifest as any).bundleVersion),configurationHash:bundle.hash,scenarioId:"scenario.first_full"});
+engine.execute(command("CMD-000001","ResumeSimulation",engine));
+engine.execute(command("CMD-000002","ScheduleDiagnosticEvent",engine,{message:"Mežtirgus diagnostic A",useRng:true,visibility:"PUBLIC"},TICK_DURATION_SECONDS));
+engine.execute(command("CMD-000003","ScheduleDiagnosticEvent",engine,{message:"Cēsis diagnostic B",useRng:true,visibility:"PLAYER_PRIVATE"},TICK_DURATION_SECONDS));
+const snapshot=createSnapshot(engine);engine.advanceFixedTicks(3);engine.execute(command("CMD-000004","PauseSimulation",engine));const pausedAt=engine.clock.currentGameTime;engine.advanceFixedTicks(10);const pauseProved=engine.clock.currentGameTime===pausedAt;
+const save=createSave(engine,snapshot);await mkdir(resolve(root,"reports"),{recursive:true});await writeFile(resolve(root,"reports/step-2-demo-save.json"),serializeSave(save),"utf8");const loaded=loadSave(save);
+console.log(`Seed: ${seed}`);console.log(`Configuration hash: ${bundle.hash}`);console.log(`Tick duration: ${TICK_DURATION_SECONDS} game seconds`);console.log(`Pause prevented advancement: ${pauseProved}`);console.log(`State checksum before save: ${engine.stateChecksum()}`);console.log(`State checksum after load/replay: ${loaded.stateChecksum()}`);console.log(`Checksums match: ${engine.stateChecksum()===loaded.stateChecksum()}`);console.log(`Post-snapshot event checksum: ${loaded.eventLogChecksum()}`);console.log(`Save checksum: ${save.saveChecksum}`);console.log(`Events after snapshot: ${save.eventsAfterSnapshot.length}`);console.log(`Save: ${resolve(root,"reports/step-2-demo-save.json")}`);

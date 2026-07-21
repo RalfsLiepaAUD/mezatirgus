@@ -1,0 +1,168 @@
+{
+    "schemaVersion":  1,
+    "configId":  "config.finance.v1",
+    "records":  [
+                    {
+                        "id":  "finance.starting_cash_easy",
+                        "schemaVersion":  1,
+                        "displayName":  "easy starting cash",
+                        "active":  true,
+                        "provenanceId":  "prov.tunable",
+                        "parameter":  "STARTING_CASH",
+                        "difficulty":  "EASY",
+                        "amount":  {
+                                       "value":  5000000,
+                                       "unit":  "MINOR_UNIT",
+                                       "provenanceId":  "prov.tunable",
+                                       "currencyCode":  "EUR"
+                                   }
+                    },
+                    {
+                        "id":  "finance.starting_cash_normal",
+                        "schemaVersion":  1,
+                        "displayName":  "normal starting cash",
+                        "active":  true,
+                        "provenanceId":  "prov.tunable",
+                        "parameter":  "STARTING_CASH",
+                        "difficulty":  "NORMAL",
+                        "amount":  {
+                                       "value":  3000000,
+                                       "unit":  "MINOR_UNIT",
+                                       "provenanceId":  "prov.tunable",
+                                       "currencyCode":  "EUR"
+                                   }
+                    },
+                    {
+                        "id":  "finance.starting_cash_hard",
+                        "schemaVersion":  1,
+                        "displayName":  "hard starting cash",
+                        "active":  true,
+                        "provenanceId":  "prov.tunable",
+                        "parameter":  "STARTING_CASH",
+                        "difficulty":  "HARD",
+                        "amount":  {
+                                       "value":  2000000,
+                                       "unit":  "MINOR_UNIT",
+                                       "provenanceId":  "prov.tunable",
+                                       "currencyCode":  "EUR"
+                                   }
+                    },
+                    {
+                        "id":  "finance.loan_starter",
+                        "schemaVersion":  1,
+                        "displayName":  "Starter term loan",
+                        "active":  true,
+                        "provenanceId":  "prov.placeholder",
+                        "parameter":  "LOAN_PRODUCT",
+                        "principal":  {
+                                          "value":  5000000,
+                                          "unit":  "MINOR_UNIT",
+                                          "provenanceId":  "prov.placeholder",
+                                          "currencyCode":  "EUR"
+                                      },
+                        "annualRate":  {
+                                           "value":  800,
+                                           "unit":  "BASIS_POINT",
+                                           "provenanceId":  "prov.placeholder"
+                                       },
+                        "term":  {
+                                     "kind":  "CALENDAR_DAYS",
+                                     "amount":  {
+                                                    "value":  730,
+                                                    "unit":  "CALENDAR_DAY",
+                                                    "provenanceId":  "prov.placeholder"
+                                                }
+                                 }
+                    },
+                    {
+                        "id":  "finance.revolving_credit",
+                        "schemaVersion":  1,
+                        "displayName":  "Starter revolving credit",
+                        "active":  true,
+                        "provenanceId":  "prov.placeholder",
+                        "parameter":  "REVOLVING_CREDIT",
+                        "creditLimit":  {
+                                            "value":  2500000,
+                                            "unit":  "MINOR_UNIT",
+                                            "provenanceId":  "prov.placeholder",
+                                            "currencyCode":  "EUR"
+                                        },
+                        "annualRate":  {
+                                           "value":  1000,
+                                           "unit":  "BASIS_POINT",
+                                           "provenanceId":  "prov.placeholder"
+                                       }
+                    },
+                    {
+                        "id":  "finance.instant_discount",
+                        "schemaVersion":  1,
+                        "displayName":  "Instant-payment discount",
+                        "active":  true,
+                        "provenanceId":  "prov.tunable",
+                        "parameter":  "INSTANT_PAYMENT_DISCOUNT",
+                        "discountRate":  {
+                                             "value":  500,
+                                             "unit":  "MINOR_UNIT_PER_CUBIC_METRE",
+                                             "provenanceId":  "prov.tunable"
+                                         }
+                    },
+                    {
+                        "id":  "finance.buyer_terms",
+                        "schemaVersion":  1,
+                        "displayName":  "Buyer payment-term range",
+                        "active":  true,
+                        "provenanceId":  "prov.research.buyers",
+                        "parameter":  "BUYER_PAYMENT_TERMS",
+                        "minimum":  {
+                                        "kind":  "CALENDAR_DAYS",
+                                        "amount":  {
+                                                       "value":  2,
+                                                       "unit":  "CALENDAR_DAY",
+                                                       "provenanceId":  "prov.research.buyers"
+                                                   }
+                                    },
+                        "maximum":  {
+                                        "kind":  "CALENDAR_DAYS",
+                                        "amount":  {
+                                                       "value":  30,
+                                                       "unit":  "CALENDAR_DAY",
+                                                       "provenanceId":  "prov.research.buyers"
+                                                   }
+                                    }
+                    },
+                    {
+                        "id":  "finance.supplier_expectations",
+                        "schemaVersion":  1,
+                        "displayName":  "Supplier payment expectation range",
+                        "active":  true,
+                        "provenanceId":  "prov.research.buyers",
+                        "parameter":  "SUPPLIER_PAYMENT_EXPECTATION",
+                        "minimum":  {
+                                        "kind":  "BUSINESS_DAYS",
+                                        "amount":  {
+                                                       "value":  1,
+                                                       "unit":  "BUSINESS_DAY",
+                                                       "provenanceId":  "prov.research.buyers"
+                                                   }
+                                    },
+                        "maximum":  {
+                                        "kind":  "CALENDAR_DAYS",
+                                        "amount":  {
+                                                       "value":  10,
+                                                       "unit":  "CALENDAR_DAY",
+                                                       "provenanceId":  "prov.research.buyers"
+                                                   }
+                                    }
+                    },
+                    {
+                        "id":  "finance.domestic_vat",
+                        "schemaVersion":  1,
+                        "displayName":  "Domestic B2B timber VAT cash treatment",
+                        "active":  true,
+                        "provenanceId":  "prov.vat.verified",
+                        "parameter":  "DOMESTIC_B2B_TIMBER_VAT",
+                        "treatment":  "NO_VAT_CASH_MOVEMENT",
+                        "treatmentProvenanceId":  "prov.vat.verified"
+                    }
+                ]
+}

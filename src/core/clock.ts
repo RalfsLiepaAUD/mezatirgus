@@ -1,0 +1,13 @@
+import { NORMAL_GAME_SECONDS_PER_WALL_SECOND_DENOMINATOR, NORMAL_GAME_SECONDS_PER_WALL_SECOND_NUMERATOR, SPEED_MULTIPLIERS, TICK_DURATION_SECONDS, type SimulationSpeed } from "./constants.js";
+export interface ClockState { currentGameTime:number; paused:boolean; speed:SimulationSpeed; wallRemainderNumerator:string; }
+export class GameClock {
+ private state:ClockState;
+ constructor(initial:Partial<ClockState>={}){this.state={currentGameTime:initial.currentGameTime??0,paused:initial.paused??true,speed:initial.speed??"1X",wallRemainderNumerator:initial.wallRemainderNumerator??"0"};this.validate();}
+ get currentGameTime(){return this.state.currentGameTime;}get paused(){return this.state.paused;}get speed(){return this.state.speed;}
+ pause(){this.state.paused=true;}resume(){this.state.paused=false;}setSpeed(speed:SimulationSpeed){if(!(speed in SPEED_MULTIPLIERS))throw new Error(`Invalid speed: ${speed}`);this.state.speed=speed;}
+ ticksFromWallMilliseconds(milliseconds:number):number{if(!Number.isSafeInteger(milliseconds)||milliseconds<0)throw new Error("Wall milliseconds must be a nonnegative safe integer");if(this.paused)return 0;const numerator=BigInt(this.state.wallRemainderNumerator)+BigInt(milliseconds)*BigInt(NORMAL_GAME_SECONDS_PER_WALL_SECOND_NUMERATOR)*BigInt(SPEED_MULTIPLIERS[this.speed]);const denominator=BigInt(1000*NORMAL_GAME_SECONDS_PER_WALL_SECOND_DENOMINATOR*TICK_DURATION_SECONDS);const ticks=numerator/denominator;this.state.wallRemainderNumerator=String(numerator%denominator);const count=Number(ticks);if(!Number.isSafeInteger(count))throw new Error("Wall-clock conversion overflow");return count;}
+ advanceOneTick(force=false){return this.advanceToExact(this.currentGameTime+TICK_DURATION_SECONDS,force);}
+ advanceToExact(target:number,force=false):number{if(this.paused&&!force)return this.currentGameTime;if(!Number.isSafeInteger(target)||target<this.currentGameTime)throw new Error("Game time must be a monotonic safe integer");if(target===this.currentGameTime)return target;this.state.currentGameTime=target;return target;}
+ restore(state:ClockState){this.state=structuredClone(state);this.validate();}snapshot():ClockState{return structuredClone(this.state);}
+ private validate(){if(!Number.isSafeInteger(this.state.currentGameTime)||this.state.currentGameTime<0)throw new Error("Invalid game timestamp");if(!(this.state.speed in SPEED_MULTIPLIERS))throw new Error("Invalid speed state");if(!/^\d+$/.test(this.state.wallRemainderNumerator))throw new Error("Invalid wall remainder");}
+}

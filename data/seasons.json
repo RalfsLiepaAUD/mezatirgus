@@ -1,0 +1,118 @@
+{
+    "schemaVersion":  1,
+    "configId":  "config.seasons.v1",
+    "records":  [
+                    {
+                        "id":  "season.winter",
+                        "schemaVersion":  1,
+                        "displayName":  "Winter supply",
+                        "active":  true,
+                        "provenanceId":  "prov.design.locked",
+                        "startDay":  {
+                                         "value":  1,
+                                         "unit":  "DAY_OF_YEAR",
+                                         "provenanceId":  "prov.tunable"
+                                     },
+                        "endDay":  {
+                                       "value":  90,
+                                       "unit":  "DAY_OF_YEAR",
+                                       "provenanceId":  "prov.tunable"
+                                   },
+                        "behaviorCode":  "WINTER_SUPPLY",
+                        "modifiers":  [
+                                          {
+                                              "code":  "HARVEST_SUPPLY_PRESSURE",
+                                              "proportion":  {
+                                                                 "value":  8000,
+                                                                 "unit":  "BASIS_POINT",
+                                                                 "provenanceId":  "prov.tunable"
+                                                             }
+                                          }
+                                      ]
+                    },
+                    {
+                        "id":  "season.spring",
+                        "schemaVersion":  1,
+                        "displayName":  "Spring thaw",
+                        "active":  true,
+                        "provenanceId":  "prov.design.locked",
+                        "startDay":  {
+                                         "value":  91,
+                                         "unit":  "DAY_OF_YEAR",
+                                         "provenanceId":  "prov.tunable"
+                                     },
+                        "endDay":  {
+                                       "value":  150,
+                                       "unit":  "DAY_OF_YEAR",
+                                       "provenanceId":  "prov.tunable"
+                                   },
+                        "behaviorCode":  "SPRING_THAW",
+                        "modifiers":  [
+                                          {
+                                              "code":  "GRAVEL_ROAD_ACCESS",
+                                              "proportion":  {
+                                                                 "value":  3500,
+                                                                 "unit":  "BASIS_POINT",
+                                                                 "provenanceId":  "prov.tunable"
+                                                             }
+                                          }
+                                      ]
+                    },
+                    {
+                        "id":  "season.summer",
+                        "schemaVersion":  1,
+                        "displayName":  "Summer degradation",
+                        "active":  true,
+                        "provenanceId":  "prov.design.locked",
+                        "startDay":  {
+                                         "value":  151,
+                                         "unit":  "DAY_OF_YEAR",
+                                         "provenanceId":  "prov.tunable"
+                                     },
+                        "endDay":  {
+                                       "value":  243,
+                                       "unit":  "DAY_OF_YEAR",
+                                       "provenanceId":  "prov.tunable"
+                                   },
+                        "behaviorCode":  "SUMMER_DEGRADATION",
+                        "modifiers":  [
+                                          {
+                                              "code":  "FRESHNESS_RETENTION",
+                                              "proportion":  {
+                                                                 "value":  4500,
+                                                                 "unit":  "BASIS_POINT",
+                                                                 "provenanceId":  "prov.tunable"
+                                                             }
+                                          }
+                                      ]
+                    },
+                    {
+                        "id":  "season.autumn",
+                        "schemaVersion":  1,
+                        "displayName":  "Autumn access",
+                        "active":  true,
+                        "provenanceId":  "prov.design.locked",
+                        "startDay":  {
+                                         "value":  244,
+                                         "unit":  "DAY_OF_YEAR",
+                                         "provenanceId":  "prov.tunable"
+                                     },
+                        "endDay":  {
+                                       "value":  365,
+                                       "unit":  "DAY_OF_YEAR",
+                                       "provenanceId":  "prov.tunable"
+                                   },
+                        "behaviorCode":  "AUTUMN_ACCESS",
+                        "modifiers":  [
+                                          {
+                                              "code":  "WET_GROUND_ACCESS",
+                                              "proportion":  {
+                                                                 "value":  6000,
+                                                                 "unit":  "BASIS_POINT",
+                                                                 "provenanceId":  "prov.tunable"
+                                                             }
+                                          }
+                                      ]
+                    }
+                ]
+}

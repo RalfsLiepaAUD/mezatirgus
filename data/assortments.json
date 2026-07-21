@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "configId": "config.assortments.v1",
+  "records": [
+    {
+      "id": "assortment.veneer_logs",
+      "schemaVersion": 1,
+      "displayName": "Veneer logs",
+      "active": true,
+      "provenanceId": "prov.design.locked",
+      "code": "veneer_logs",
+      "compatibleSpeciesIds": [
+        "species.birch"
+      ]
+    },
+    {
+      "id": "assortment.sawlogs",
+      "schemaVersion": 1,
+      "displayName": "Sawlogs",
+      "active": true,
+      "provenanceId": "prov.design.locked",
+      "code": "sawlogs",
+      "compatibleSpeciesIds": [
+        "species.spruce",
+        "species.pine",
+        "species.birch",
+        "species.oak"
+      ]
+    },
+    {
+      "id": "assortment.pulpwood",
+      "schemaVersion": 1,
+      "displayName": "Pulpwood",
+      "active": true,
+      "provenanceId": "prov.design.locked",
+      "code": "pulpwood",
+      "compatibleSpeciesIds": [
+        "species.birch",
+        "species.spruce",
+        "species.pine",
+        "species.aspen",
+        "species.alder"
+      ]
+    },
+    {
+      "id": "assortment.energy_wood",
+      "schemaVersion": 1,
+      "displayName": "Energy wood",
+      "active": true,
+      "provenanceId": "prov.design.locked",
+      "code": "energy_wood",
+      "compatibleSpeciesIds": [
+        "species.birch",
+        "species.spruce",
+        "species.pine",
+        "species.aspen",
+        "species.alder",
+        "species.oak"
+      ]
+    },
+    {
+      "id": "assortment.reject",
+      "schemaVersion": 1,
+      "displayName": "Reject / brāķis",
+      "active": true,
+      "provenanceId": "prov.design.locked",
+      "code": "reject",
+      "compatibleSpeciesIds": [
+        "species.birch",
+        "species.spruce",
+        "species.pine",
+        "species.aspen",
+        "species.alder",
+        "species.oak"
+      ]
+    }
+  ]
+}

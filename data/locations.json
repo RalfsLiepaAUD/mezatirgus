@@ -1,0 +1,238 @@
+{
+    "schemaVersion":  1,
+    "configId":  "config.locations.v1",
+    "records":  [
+                    {
+                        "id":  "location.riga",
+                        "schemaVersion":  1,
+                        "displayName":  "Riga",
+                        "active":  true,
+                        "provenanceId":  "prov.placeholder",
+                        "coordinateType":  "LATITUDE_LONGITUDE",
+                        "latitudeE6":  {
+                                           "value":  56949000,
+                                           "unit":  "MICRODEGREE",
+                                           "provenanceId":  "prov.placeholder"
+                                       },
+                        "longitudeE6":  {
+                                            "value":  24106000,
+                                            "unit":  "MICRODEGREE",
+                                            "provenanceId":  "prov.placeholder"
+                                        },
+                        "countryCode":  "LV",
+                        "regionCode":  "RIGA",
+                        "roles":  [
+                                      "CITY",
+                                      "REGIONAL_NODE"
+                                  ]
+                    },
+                    {
+                        "id":  "location.cesis",
+                        "schemaVersion":  1,
+                        "displayName":  "Cēsis",
+                        "active":  true,
+                        "provenanceId":  "prov.placeholder",
+                        "coordinateType":  "LATITUDE_LONGITUDE",
+                        "latitudeE6":  {
+                                           "value":  57311000,
+                                           "unit":  "MICRODEGREE",
+                                           "provenanceId":  "prov.placeholder"
+                                       },
+                        "longitudeE6":  {
+                                            "value":  25274000,
+                                            "unit":  "MICRODEGREE",
+                                            "provenanceId":  "prov.placeholder"
+                                        },
+                        "countryCode":  "LV",
+                        "regionCode":  "VIDZEME",
+                        "roles":  [
+                                      "CITY",
+                                      "REGIONAL_NODE"
+                                  ]
+                    },
+                    {
+                        "id":  "location.zemgale_node",
+                        "schemaVersion":  1,
+                        "displayName":  "Zemgale regional node",
+                        "active":  true,
+                        "provenanceId":  "prov.placeholder",
+                        "coordinateType":  "LATITUDE_LONGITUDE",
+                        "latitudeE6":  {
+                                           "value":  56510000,
+                                           "unit":  "MICRODEGREE",
+                                           "provenanceId":  "prov.placeholder"
+                                       },
+                        "longitudeE6":  {
+                                            "value":  23790000,
+                                            "unit":  "MICRODEGREE",
+                                            "provenanceId":  "prov.placeholder"
+                                        },
+                        "countryCode":  "LV",
+                        "regionCode":  "ZEMGALE",
+                        "roles":  [
+                                      "REGIONAL_NODE"
+                                  ]
+                    },
+                    {
+                        "id":  "location.kurzeme_node",
+                        "schemaVersion":  1,
+                        "displayName":  "Kurzeme regional node",
+                        "active":  true,
+                        "provenanceId":  "prov.placeholder",
+                        "coordinateType":  "LATITUDE_LONGITUDE",
+                        "latitudeE6":  {
+                                           "value":  56970000,
+                                           "unit":  "MICRODEGREE",
+                                           "provenanceId":  "prov.placeholder"
+                                       },
+                        "longitudeE6":  {
+                                            "value":  22050000,
+                                            "unit":  "MICRODEGREE",
+                                            "provenanceId":  "prov.placeholder"
+                                        },
+                        "countryCode":  "LV",
+                        "regionCode":  "KURZEME",
+                        "roles":  [
+                                      "REGIONAL_NODE"
+                                  ]
+                    },
+                    {
+                        "id":  "location.latgale_node",
+                        "schemaVersion":  1,
+                        "displayName":  "Latgale regional node",
+                        "active":  true,
+                        "provenanceId":  "prov.placeholder",
+                        "coordinateType":  "LATITUDE_LONGITUDE",
+                        "latitudeE6":  {
+                                           "value":  55900000,
+                                           "unit":  "MICRODEGREE",
+                                           "provenanceId":  "prov.placeholder"
+                                       },
+                        "longitudeE6":  {
+                                            "value":  26350000,
+                                            "unit":  "MICRODEGREE",
+                                            "provenanceId":  "prov.placeholder"
+                                        },
+                        "countryCode":  "LV",
+                        "regionCode":  "LATGALE",
+                        "roles":  [
+                                      "REGIONAL_NODE"
+                                  ]
+                    },
+                    {
+                        "id":  "location.silava_roadside",
+                        "schemaVersion":  1,
+                        "displayName":  "Silava roadside supply point",
+                        "active":  true,
+                        "provenanceId":  "prov.placeholder",
+                        "coordinateType":  "LATITUDE_LONGITUDE",
+                        "latitudeE6":  {
+                                           "value":  57220000,
+                                           "unit":  "MICRODEGREE",
+                                           "provenanceId":  "prov.placeholder"
+                                       },
+                        "longitudeE6":  {
+                                            "value":  25010000,
+                                            "unit":  "MICRODEGREE",
+                                            "provenanceId":  "prov.placeholder"
+                                        },
+                        "countryCode":  "LV",
+                        "regionCode":  "VIDZEME",
+                        "roles":  [
+                                      "ROADSIDE_SUPPLY"
+                                  ]
+                    },
+                    {
+                        "id":  "location.meztrigus_yard",
+                        "schemaVersion":  1,
+                        "displayName":  "Mežtirgus starter yard",
+                        "active":  true,
+                        "provenanceId":  "prov.placeholder",
+                        "coordinateType":  "LATITUDE_LONGITUDE",
+                        "latitudeE6":  {
+                                           "value":  56920000,
+                                           "unit":  "MICRODEGREE",
+                                           "provenanceId":  "prov.placeholder"
+                                       },
+                        "longitudeE6":  {
+                                            "value":  24150000,
+                                            "unit":  "MICRODEGREE",
+                                            "provenanceId":  "prov.placeholder"
+                                        },
+                        "countryCode":  "LV",
+                        "regionCode":  "RIGA",
+                        "roles":  [
+                                      "YARD"
+                                  ]
+                    },
+                    {
+                        "id":  "location.daugava_buyer",
+                        "schemaVersion":  1,
+                        "displayName":  "Daugava fictional buyer site",
+                        "active":  true,
+                        "provenanceId":  "prov.placeholder",
+                        "coordinateType":  "LATITUDE_LONGITUDE",
+                        "latitudeE6":  {
+                                           "value":  56900000,
+                                           "unit":  "MICRODEGREE",
+                                           "provenanceId":  "prov.placeholder"
+                                       },
+                        "longitudeE6":  {
+                                            "value":  24200000,
+                                            "unit":  "MICRODEGREE",
+                                            "provenanceId":  "prov.placeholder"
+                                        },
+                        "countryCode":  "LV",
+                        "regionCode":  "RIGA",
+                        "roles":  [
+                                      "BUYER"
+                                  ]
+                    },
+                    {
+                        "id":  "location.ventspils_port",
+                        "schemaVersion":  1,
+                        "displayName":  "Ventspils port node",
+                        "active":  true,
+                        "provenanceId":  "prov.placeholder",
+                        "coordinateType":  "LATITUDE_LONGITUDE",
+                        "latitudeE6":  {
+                                           "value":  57393000,
+                                           "unit":  "MICRODEGREE",
+                                           "provenanceId":  "prov.placeholder"
+                                       },
+                        "longitudeE6":  {
+                                            "value":  21565000,
+                                            "unit":  "MICRODEGREE",
+                                            "provenanceId":  "prov.placeholder"
+                                        },
+                        "countryCode":  "LV",
+                        "regionCode":  "KURZEME",
+                        "roles":  [
+                                      "PORT"
+                                  ]
+                    },
+                    {
+                        "id":  "location.hamburg_destination",
+                        "schemaVersion":  1,
+                        "displayName":  "Hamburg external destination",
+                        "active":  true,
+                        "provenanceId":  "prov.placeholder",
+                        "coordinateType":  "LATITUDE_LONGITUDE",
+                        "latitudeE6":  {
+                                           "value":  53551000,
+                                           "unit":  "MICRODEGREE",
+                                           "provenanceId":  "prov.placeholder"
+                                       },
+                        "longitudeE6":  {
+                                            "value":  9993000,
+                                            "unit":  "MICRODEGREE",
+                                            "provenanceId":  "prov.placeholder"
+                                        },
+                        "countryCode":  "DE",
+                        "regionCode":  "EXTERNAL_EUROPE",
+                        "roles":  [
+                                      "EXTERNAL_DESTINATION"
+                                  ]
+                    }
+                ]
+}

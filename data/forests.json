@@ -1,0 +1,39 @@
+{
+    "schemaVersion":  1,
+    "configId":  "config.forests.v1",
+    "records":  [
+                    {
+                        "id":  "forest.cesis_starter",
+                        "schemaVersion":  1,
+                        "displayName":  "Cēsis starter forest",
+                        "active":  true,
+                        "provenanceId":  "prov.uncertain.forest",
+                        "fictional":  true,
+                        "locationId":  "location.cesis",
+                        "estimatedVolume":  {
+                                                "value":  120000,
+                                                "unit":  "VOLUME_MILLI_CUBIC_METRE",
+                                                "provenanceId":  "prov.uncertain.forest"
+                                            },
+                        "speciesComposition":  [
+                                                   {
+                                                       "speciesId":  "species.birch",
+                                                       "proportion":  {
+                                                                          "value":  6000,
+                                                                          "unit":  "BASIS_POINT",
+                                                                          "provenanceId":  "prov.placeholder"
+                                                                      }
+                                                   },
+                                                   {
+                                                       "speciesId":  "species.spruce",
+                                                       "proportion":  {
+                                                                          "value":  4000,
+                                                                          "unit":  "BASIS_POINT",
+                                                                          "provenanceId":  "prov.placeholder"
+                                                                      }
+                                                   }
+                                               ],
+                        "regenerationState":  "NOT_HARVESTED"
+                    }
+                ]
+}
