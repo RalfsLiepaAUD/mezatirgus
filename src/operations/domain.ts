@@ -29,6 +29,7 @@ const EVENTS = new Set([
   'OperationsCostPosted',
   'YardSortingRecorded',
   'YardSortingConductRecorded',
+  'SortJobQueued',
 ]);
 
 export const emptyOperations = (): OperationsSnapshot => ({
@@ -39,6 +40,7 @@ export const emptyOperations = (): OperationsSnapshot => ({
   employees: [],
   lanes: [],
   dispatchOrders: [],
+  sortJobs: [],
 });
 
 export class OperationsDomain {
@@ -256,6 +258,10 @@ export class OperationsDomain {
     } else if (event.eventType === 'YardSortingConductRecorded') {
       // Tracks player conduct choices at the yard
       // Payload: { yardId, loadId, conductType: 'ETHICAL' | 'OPPORTUNISTIC', ... }
+    } else if (event.eventType === 'SortJobQueued') {
+      const sj = cp(p.job);
+      sj.sourceEventIds = [event.eventId];
+      this.state.sortJobs.push(sj);
     }
 
     this.state.appliedEventIds.push(event.eventId);

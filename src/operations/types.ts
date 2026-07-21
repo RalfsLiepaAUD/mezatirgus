@@ -94,6 +94,7 @@ export interface DispatchOrder {
   sourceEventIds: string[];
 }
 
+export interface SortJob{id:string;yardId:string;batchId:string;status:'QUEUED'|'COMPLETED'|'FAILED';createdTimestamp:number;sourceEventIds:string[]}
 export interface OperationsSnapshot {
   appliedEventIds: string[];
   yards: Yard[];
@@ -102,4 +103,5 @@ export interface OperationsSnapshot {
   employees: Employee[];
   lanes: Lane[];
   dispatchOrders: DispatchOrder[];
+  sortJobs: SortJob[];
 }

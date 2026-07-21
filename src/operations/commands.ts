@@ -2,9 +2,10 @@ import type { CommandEnvelope, CommandResult } from '../core/commands.js';
 import type { ScheduledEvent } from '../core/events.js';
 import type { SimulationEngine } from '../core/engine.js';
 import { SimulationPhase } from '../core/phases.js';
-import type { CostLayer, Load } from '../inventory/types.js';
+import type { Batch, CostLayer, Load, RecoveryVolumeEntry } from '../inventory/types.js';
+import { allocateInteger } from '../inventory/value-objects.js';
 import type { JournalTransaction, Payable } from '../finance/types.js';
-import type { DispatchOrder, Driver, Employee, Lane, OwnedTruck, Yard } from './types.js';
+import type { DispatchOrder, Driver, Employee, Lane, OwnedTruck, SortJob, Yard } from './types.js';
 
 const reject = (c: CommandEnvelope, code: string, message: string): CommandResult => ({
   accepted: false, commandId: c.commandId, code, message,
@@ -503,55 +504,119 @@ export function registerOperationsCommands(e: SimulationEngine) {
     const p = c.payload;
     const batch = e.inventory.batch(String(p.batchId));
     const yard = e.operations.yard(String(p.yardId));
-    if (!batch || !yard || batch.locationId !== yard.locationId)
-      return reject(c, 'INVALID_SORTING', 'Batch must be at yard location');
-    if (batch.certainty === 'SORTED' || batch.certainty === 'MEASURED')
-      return reject(c, 'ALREADY_SORTED', 'Batch already sorted or measured');
+    if (!batch || !yard) return reject(c, 'INVALID_REFERENCES', 'Batch and yard required');
+    if (yard.sortingCostMinorPerM3 <= 0)
+      return reject(c, 'NO_SORTING_CAPABILITY', 'Yard lacks sorting capability');
+    if (batch.locationId !== yard.locationId)
+      return reject(c, 'BATCH_NOT_AT_YARD', 'Batch must be physically located at yard');
+    if (batch.status === 'DEPLETED' || batch.status === 'SPLIT' || batch.status === 'MERGED')
+      return reject(c, 'BATCH_CONSUMED', 'Batch already consumed');
+    if (!batch.recoveryVolumes || !batch.recoveryVolumes.length)
+      return reject(c, 'NO_RECOVERY_DATA', 'Batch has no recovery-volume data');
 
+    // Calculate children and loss
+    const childVolTotal = batch.recoveryVolumes.reduce((n, r) => n + r.volumeMilliM3, 0);
+    const lossVolume = batch.currentVolumeMilliM3 - childVolTotal;
+    if (lossVolume < 0)
+      return reject(c, 'RECOVERY_EXCEEDS_BATCH', 'Recovery volumes exceed batch volume');
+
+    // Capacity check — queue if insufficient
+    const neededCapacity = batch.currentVolumeMilliM3;
+    if (yard.usedCapacityMilliM3 + neededCapacity > yard.totalCapacityMilliM3) {
+      const sj: SortJob = {
+        id: e.ids.next('sort_job', 'SORTJOB'),
+        yardId: yard.id,
+        batchId: batch.id,
+        status: 'QUEUED',
+        createdTimestamp: e.clock.currentGameTime,
+        sourceEventIds: [],
+      };
+      emit(e, c, 'SortJobQueued', { job: sj });
+      return { accepted: true as const, commandId: c.commandId, emittedEventIds: [c.commandId] };
+    }
+
+    // Build child batches from recovery volumes
+    const now = e.clock.currentGameTime;
+    const childBatches: Batch[] = [];
+    const childCostLayers: CostLayer[] = [];
+    const parentCostLayers = e.inventory.snapshot().costLayers
+      .filter(cl => cl.attachedToType === 'BATCH' && cl.attachedToId === batch.id && cl.status === 'ACTIVE');
+    const childVolumes = batch.recoveryVolumes.filter(r => r.label !== 'loss' && r.label !== 'Loss' && r.label !== 'LOSS').map(r => r.volumeMilliM3);
+
+    for (const rv of batch.recoveryVolumes) {
+      if (rv.label === 'loss' || rv.label === 'Loss' || rv.label === 'LOSS') continue;
+      const cId = e.ids.next('batch', 'BATCH');
+      const newBatch: Batch = {
+        ...structuredClone(batch),
+        id: cId,
+        parentBatchIds: [batch.id],
+        childBatchIds: [],
+        status: 'AVAILABLE',
+        createdTimestamp: now,
+        sourceEventIds: [],
+        originalVolumeMilliM3: rv.volumeMilliM3,
+        currentVolumeMilliM3: rv.volumeMilliM3,
+        reservedVolumeMilliM3: 0,
+        allocatedVolumeMilliM3: 0,
+        depletedVolumeMilliM3: 0,
+        certainty: 'HIGH' as any,
+        costLayerIds: [],
+        ancestryDepth: batch.ancestryDepth + 1,
+        
+        historyEventIds: [],
+      };
+      childBatches.push(newBatch);
+
+      // Allocate parent cost layers pro-rata by volume
+      for (const cl of parentCostLayers) {
+        const amounts = allocateInteger(cl.totalMinor, childVolumes);
+        const attrs = allocateInteger(cl.attributableVolumeMilliM3, childVolumes);
+        const idx = childBatches.length - 1;
+        childCostLayers.push({
+          ...structuredClone(cl),
+          id: e.ids.next('cost_layer', 'COST'),
+          attachedToId: cId,
+          totalMinor: amounts[idx]!,
+          attributableVolumeMilliM3: attrs[idx]!,
+          createdTimestamp: now,
+          parentCostLayerId: cl.id,
+          status: 'ACTIVE',
+          provenanceReference: 'SORTING_M1',
+        });
+      }
+    }
+
+    // Mark parent cost layers as allocated
+    const allocatedParentLayers = parentCostLayers.map(cl => ({ ...cl, id: cl.id, status: 'ALLOCATED' as const }));
+
+    // Calculate sorting cost
     const cost = yard.sortingCostMinorPerM3;
     const totalCost = Number(BigInt(batch.currentVolumeMilliM3) * BigInt(cost) / 1000n);
-    if (!Number.isSafeInteger(totalCost))
-      return reject(c, 'COST_OVERFLOW', 'Sorting cost overflow');
+    if (!Number.isSafeInteger(totalCost)) return reject(c, 'COST_OVERFLOW', 'Sorting cost overflow');
 
-    // Create payable, journal, and cost layer for the sorting cost
     const payableId = e.ids.next('payable', 'PAYABLE');
     const journalId = e.ids.next('journal', 'JOURNAL');
     const costLayerId = e.ids.next('cost_layer', 'COST');
     const identity = e.reserveEventIdentity();
-    const dueTimestamp = e.clock.currentGameTime + 3600;
+    const dueTimestamp = now + 3600;
 
     const payable: Payable = {
-      id: payableId,
-      companyId: yard.companyId,
-      counterpartyId: yard.companyId,
-      principalMinor: totalCost,
-      currency: 'EUR',
-      createdTimestamp: e.clock.currentGameTime,
-      dueTimestamp,
-      status: 'COMMITTED',
-      amountPaidMinor: 0,
-      sourceEventId: identity.eventId,
-      sourceObjectIds: [yard.id, batch.id],
+      id: payableId, companyId: yard.companyId, counterpartyId: yard.companyId,
+      principalMinor: totalCost, currency: 'EUR', createdTimestamp: now,
+      dueTimestamp, status: 'COMMITTED', amountPaidMinor: 0,
+      sourceEventId: identity.eventId, sourceObjectIds: [yard.id, batch.id],
     };
 
     const tx = journalTx(e, journalId, identity.eventId, yard.companyId,
-      totalCost, yard.companyId,
-      [yard.id, batch.id], 'Yard sorting operating cost',
-      'SORTING_COST');
+      totalCost, yard.companyId, [yard.id, batch.id],
+      'Yard sorting operating cost', 'SORTING_COST');
 
-    const costLayer: CostLayer = {
-      id: costLayerId,
-      attachedToType: 'BATCH',
-      attachedToId: batch.id,
-      sourceObjectId: yard.id,
-      category: 'OPERATIONAL',
-      currency: 'EUR',
-      totalMinor: totalCost,
-      attributableVolumeMilliM3: batch.currentVolumeMilliM3,
-      allocationMethod: 'DIRECT',
-      createdTimestamp: e.clock.currentGameTime,
-      financeSourceId: payableId,
-      provenanceReference: 'STEP_11_OPERATIONS_RULES',
+    const sortingCostLayer: CostLayer = {
+      id: costLayerId, attachedToType: 'BATCH', attachedToId: batch.id,
+      sourceObjectId: yard.id, category: 'OPERATIONAL', currency: 'EUR',
+      totalMinor: totalCost, attributableVolumeMilliM3: batch.currentVolumeMilliM3,
+      allocationMethod: 'DIRECT', createdTimestamp: now,
+      financeSourceId: payableId, provenanceReference: 'STEP_11_OPERATIONS_RULES',
       status: 'ACTIVE',
     };
 
@@ -573,22 +638,26 @@ export function registerOperationsCommands(e: SimulationEngine) {
         batchId: batch.id,
         sortingCostMinor: totalCost,
         conductType,
+        childBatches,
+        childCostLayers,
+        allocatedParentLayers,
+        lossVolume,
         payable,
         transaction: tx,
-        costLayer,
+        costLayer: sortingCostLayer,
         scheduledEvents,
       },
     });
 
-    // Also emit a conduct event
     emit(e, c, 'YardSortingConductRecorded', {
       yardId: yard.id,
       batchId: batch.id,
       conductType,
-      gameTime: e.clock.currentGameTime,
+      gameTime: now,
     });
 
-    return { accepted: true as const, commandId: c.commandId, emittedEventIds: [x.eventId] };
+    const allIds = [x.eventId];
+    return { accepted: true as const, commandId: c.commandId, emittedEventIds: allIds };
   });
 
   // ── Operating Cost Posting ──────────────────────────────────────────

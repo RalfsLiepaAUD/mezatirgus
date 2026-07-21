@@ -66,7 +66,7 @@ export function runCanonicalScenario(e: SimulationEngine): ScenarioResult {
     go(e, 'DA', 'ActivateDeal', { dealId: 'DEAL-000001' });
     go(e, 'LOT', 'CreateLot', {
       dealId: 'DEAL-000001', ownerCompanyId: 'COMPANY-000001', custodyActorId: 'COMPANY-000001',
-      locationId: 'LOCATION-000001', originalVolumeMilliM3: 30_000, composition,
+      locationId: 'LOCATION-000001', originalVolumeMilliM3: 50_000, composition,
       freshness: 'FRESH', certainty: 'ESTIMATED',
     });
     go(e, 'BATCH', 'CreateInitialBatch', { lotId: 'LOT-000001', volumeMilliM3: 30_000, composition });
@@ -88,7 +88,9 @@ export function runCanonicalScenario(e: SimulationEngine): ScenarioResult {
       companyId: 'COMPANY-000001', displayName: 'Pēteris Ozols', role: 'YARD_WORKER', wageMinorPerHour: 1_200,
     });
     go(e, 'AE', 'AssignEmployeeToYard', { employeeId: 'EMPLOYEE-000001', yardId: 'YARD-000001' });
-    go(e, 'SORT', 'SortBatchAtYard', { yardId: 'YARD-000001', batchId: 'BATCH-000001', conductType: 'ETHICAL' });
+    go(e, 'B3', 'CreateInitialBatch', { lotId: 'LOT-000001', volumeMilliM3: 15_000, composition });
+    go(e, 'RV', 'SetBatchRecoveryVolumes', { batchId: 'BATCH-000002', volumes: [{ label: 'A', volumeMilliM3: 7500 }, { label: 'B', volumeMilliM3: 7400 }, { label: 'loss', volumeMilliM3: 100 }] });
+    go(e, 'SORT', 'SortBatchAtYard', { yardId: 'YARD-000001', batchId: 'BATCH-000002', conductType: 'ETHICAL' });
 
     // ── Phase 5: Buyer & frame agreement ───────────────────────────
     go(e, 'BUY', 'CreateBuyer', {
@@ -190,7 +192,7 @@ export function runCanonicalScenario(e: SimulationEngine): ScenarioResult {
     go(e, 'EQA', 'AcceptExportQuote', { quoteId: 'EXQUOTE-000001' });
     go(e, 'EORD', 'CreateExportOrder', {
       quoteId: 'EXQUOTE-000001', exportBuyerId: 'EXBUYER-000001',
-      volumeMilliM3: 30_000, batchIds: ['BATCH-000002'],
+      volumeMilliM3: 30_000, batchIds: ['BATCH-000005'],
       requiredDocumentTypes: ['CERT_OF_ORIGIN', 'PHYTOSANITARY'],
     });
     go(e, 'DOC', 'ValidateExportDocuments', { orderId: 'EXORDER-000001' });
