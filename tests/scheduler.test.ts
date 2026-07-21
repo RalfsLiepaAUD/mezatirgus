@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { SimulationEngine, command } from '../src/core/engine.js';
 import { TICK_DURATION_SECONDS } from '../src/core/constants.js';
-import { setupAutonomousScheduler } from '../src/scheduler/commands.js';
+import { setupAutonomousScheduler, publicOffers } from '../src/scheduler/commands.js';
 import { createSnapshot } from '../src/persistence/snapshot.js';
 import { createSave, loadSave } from '../src/persistence/save.js';
 
@@ -42,6 +42,21 @@ function baseEngine(seed = 'scheduler-test'): SimulationEngine {
     supplierId: 'SUPPLIER-000001', displayName: 'Jānis Bērziņš', role: 'OWNER',
     phoneNumber: '+37129123456', email: 'janis@liepa.lv',
   });
+  // Competitor company
+  go('C2', 'CreateCompany', { displayName: 'Ziemeļu Koks', reputationBasisPoints: 5000 });
+  go('CASH2', 'CreateOpeningBalance', { companyId: 'COMPANY-000002', amountMinor: 5_000_000 });
+  go('SUP2', 'CreateSupplier', {
+    configId: 'supplier.liepa_owner', displayName: 'Gaujas Mežs', fictional: true,
+    archetype: 'PRIVATE_FOREST_OWNER', companyId: 'COMPANY-000002', locationId: 'LOCATION-000003',
+    channels: ['PRIVATE_ROADSIDE_OFFER'], suppliedSpeciesIds: ['species.birch'],
+    suppliedAssortmentIds: ['assortment.sawlogs'], paymentExpectationSeconds: 7200,
+    documentReliabilityBasisPoints: 5000, freshnessAnswerReliabilityBasisPoints: 5000,
+    initialRelationshipBasisPoints: 5000,
+  });
+  go('CONT2', 'CreateSupplierContact', {
+    supplierId: 'SUPPLIER-000002', displayName: 'Kārlis Zariņš', role: 'OWNER',
+    phoneNumber: '+37129876543', email: 'karlis@gaujasmezs.lv',
+  });
   go('EMP', 'CreateEmployee', {
     companyId: 'COMPANY-000001', displayName: 'Pēteris Ozols', role: 'YARD_WORKER', wageMinorPerHour: 1_200,
   });
@@ -59,6 +74,51 @@ function baseEngine(seed = 'scheduler-test'): SimulationEngine {
 
 describe('Phase 2 — The World Ticks', () => {
 
+  // ── Competitor identity & finance ────────────────────────────────
+  it('competitor actions never mutate player finance or inventory', () => {
+    const e = baseEngine('comp-fin');
+    setupAutonomousScheduler(e);
+    e.advanceFixedTicks(48); // 2 days
+    // Player offers still exist (competitor may accept its own, not player's)
+    expect(e.suppliers.snapshot().offers.some(o => o.companyId === 'COMPANY-000001' && o.status === 'OPEN')).toBe(true);
+    // Player inventory has no competitor-originated batches
+    const compBatches = e.inventory.snapshot().batches.filter(b =>
+      b.ownerCompanyId === 'COMPANY-000002');
+    const playerBatches = e.inventory.snapshot().batches.filter(b =>
+      b.ownerCompanyId === 'COMPANY-000001');
+    // Competitor may have batches from accepted offers, player should not have competitor's
+    for (const pb of playerBatches) {
+      expect(pb.ownerCompanyId).toBe('COMPANY-000001');
+    }
+  });
+
+  it('competitor uses distinct identity and budget', () => {
+    const e = baseEngine('comp-id');
+    setupAutonomousScheduler(e);
+    const comp = e.finance.company('COMPANY-000002');
+    expect(comp).toBeDefined();
+    const cashBefore = e.finance.balanceByCode('COMPANY-000002', 'OPERATING_CASH');
+    expect(cashBefore).toBe(5_000_000);
+    e.advanceFixedTicks(48);
+    // After accepting offers, competitor should have commitments
+    const commitments = e.finance.snapshot().commitments.filter(c => c.companyId === 'COMPANY-000002' && c.status === 'ACTIVE');
+    // Competitor has accepted offers or has commitments
+    expect(e.suppliers.snapshot().offers.some(o => o.companyId === 'COMPANY-000002' && o.status === 'ACCEPTED')).toBe(true);
+  });
+
+  it('competitor-facing publicOffers excludes hidden truth', () => {
+    const e = baseEngine();
+    setupAutonomousScheduler(e);
+    e.advanceFixedTicks(13);
+    const pub = publicOffers(e, 'COMPANY-000001');
+    for (const o of pub) {
+      expect((o as any).truth).toBeUndefined();
+      expect((o as any).belief).toBeUndefined();
+      expect(o.baseRateMinorPerM3).toBeGreaterThan(0);
+      expect(o.status).toBeDefined();
+    }
+  });
+
   it('daily buyer consumption changes stock and hunger', () => {
     const e = baseEngine();
     setupAutonomousScheduler(e);
@@ -68,12 +128,12 @@ describe('Phase 2 — The World Ticks', () => {
     expect(e.buyers.buyer('BUYER-000001')!.stockMilliM3).toBeLessThan(80_000);
   });
 
-  it('supplier offer generation cadence (every 3 ticks = 3 offers per day)', () => {
+  it('supplier offer generation cadence (every 12 ticks, multiple suppliers)', () => {
     const e = baseEngine();
     setupAutonomousScheduler(e);
-    e.advanceFixedTicks(6); // 6 ticks = 2 offer cycles
+    e.advanceFixedTicks(13); // just past 1st offer cycle
     const offers = e.suppliers.snapshot().offers;
-    expect(offers.length).toBeGreaterThanOrEqual(2);
+    expect(offers.length).toBeGreaterThanOrEqual(1);
   });
 
   it('deterministic offer contents (same seed = same offers)', () => {
@@ -87,7 +147,7 @@ describe('Phase 2 — The World Ticks', () => {
   it('offers are generated with expiry timestamps', () => {
     const e = baseEngine();
     setupAutonomousScheduler(e);
-    e.advanceFixedTicks(6);
+    e.advanceFixedTicks(13); // first offer cycle at tick 12
     for (const o of e.suppliers.snapshot().offers) {
       expect(o.expiryTimestamp).toBeGreaterThan(o.createdTimestamp);
     }

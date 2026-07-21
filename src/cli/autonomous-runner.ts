@@ -24,6 +24,8 @@ function parseArgs() {
 function setup(e: SimulationEngine) {
   go(e, 'C', 'CreateCompany', { displayName: 'Mežtirgus SIA', reputationBasisPoints: 5000 });
   go(e, 'CASH', 'CreateOpeningBalance', { companyId: 'COMPANY-000001', amountMinor: 3_000_000 });
+  go(e, 'C2', 'CreateCompany', { displayName: 'Ziemeļu Koks', reputationBasisPoints: 5000 });
+  go(e, 'CASH2', 'CreateOpeningBalance', { companyId: 'COMPANY-000002', amountMinor: 5_000_000 });
   go(e, 'Y', 'CreateLocation', { displayName: 'Cēsis yard', countryCode: 'LV', regionCode: 'VIDZEME', roles: ['YARD'] });
   go(e, 'B', 'CreateLocation', { displayName: 'Rīga buyer', countryCode: 'LV', regionCode: 'RIGA', roles: ['BUYER'] });
   go(e, 'F', 'CreateLocation', { displayName: 'Forest roadside', countryCode: 'LV', regionCode: 'VIDZEME', roles: ['ROADSIDE'] });
@@ -52,6 +54,18 @@ function setup(e: SimulationEngine) {
   go(e, 'CONT', 'CreateSupplierContact', {
     supplierId: 'SUPPLIER-000001', displayName: 'Jānis Bērziņš', role: 'OWNER',
     phoneNumber: '+37129123456', email: 'janis@liepa.lv',
+  });
+  go(e, 'SUP2', 'CreateSupplier', {
+    configId: 'supplier.liepa_owner', displayName: 'Gaujas Mežs', fictional: true,
+    archetype: 'PRIVATE_FOREST_OWNER', companyId: 'COMPANY-000002', locationId: 'LOCATION-000003',
+    channels: ['PRIVATE_ROADSIDE_OFFER'], suppliedSpeciesIds: ['species.birch'],
+    suppliedAssortmentIds: ['assortment.sawlogs'], paymentExpectationSeconds: 7200,
+    documentReliabilityBasisPoints: 5000, freshnessAnswerReliabilityBasisPoints: 5000,
+    initialRelationshipBasisPoints: 5000,
+  });
+  go(e, 'CONT2', 'CreateSupplierContact', {
+    supplierId: 'SUPPLIER-000002', displayName: 'Kārlis Zariņš', role: 'OWNER',
+    phoneNumber: '+37129876543', email: 'karlis@gaujasmezs.lv',
   });
   go(e, 'EMP', 'CreateEmployee', {
     companyId: 'COMPANY-000001', displayName: 'Pēteris Ozols', role: 'YARD_WORKER', wageMinorPerHour: 1_200,
