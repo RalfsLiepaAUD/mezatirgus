@@ -46,11 +46,40 @@ go(e, 'Q', 'CreateExportQuote', {
 go(e, 'QA', 'AcceptExportQuote', { quoteId: 'EXQUOTE-000001' });
 console.log('   Quote accepted: €80/m³ + €500 handling + €100 docs');
 
+// ── Inventory ─────────────────────────────────────────────────────────
+console.log('\n◆ Setting up inventory for export...');
+go(e, 'DL', 'CreateDeal', {
+  companyId: 'COMPANY-000001', counterpartyId: 'SUPPLIER-DEMO',
+  expectedVolumeMilliM3: 100_000, financeSourceIds: [], currency: 'EUR',
+  description: 'Demo deal for export',
+});
+go(e, 'DLACT', 'ActivateDeal', { dealId: 'DEAL-000001' });
+go(e, 'LOT', 'CreateLot', {
+  dealId: 'DEAL-000001', ownerCompanyId: 'COMPANY-000001',
+  custodyActorId: 'actor.demo', locationId: 'LOCATION-000001',
+  originalVolumeMilliM3: 50_000, freshness: 'FRESH', certainty: 'INSPECTED',
+  composition: {
+    species: [{ id: 'species.birch', basisPoints: 10000 }],
+    assortment: [{ id: 'assortment.sawlogs', basisPoints: 10000 }],
+    quality: [{ id: 'quality.birch.b', basisPoints: 10000 }],
+  },
+});
+go(e, 'BATCH', 'CreateInitialBatch', {
+  lotId: 'LOT-000001', volumeMilliM3: 50_000,
+  composition: {
+    species: [{ id: 'species.birch', basisPoints: 10000 }],
+    assortment: [{ id: 'assortment.sawlogs', basisPoints: 10000 }],
+    quality: [{ id: 'quality.birch.b', basisPoints: 10000 }],
+  },
+});
+console.log('   Inventory: 50 m³ batch created');
+
 // ── Order ────────────────────────────────────────────────────────────
 console.log('\n◆ Creating export order (30 m³ to Rotterdam)...');
 go(e, 'ORD', 'CreateExportOrder', {
   quoteId: 'EXQUOTE-000001', exportBuyerId: 'EXBUYER-000001',
-  volumeMilliM3: 30_000, requiredDocumentTypes: ['CERT_OF_ORIGIN', 'PHYTOSANITARY'],
+  volumeMilliM3: 30_000, batchIds: ['BATCH-000001'],
+  requiredDocumentTypes: ['CERT_OF_ORIGIN', 'PHYTOSANITARY'],
 });
 
 // ── Documents ────────────────────────────────────────────────────────

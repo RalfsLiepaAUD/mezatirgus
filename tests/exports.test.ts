@@ -13,6 +13,25 @@ const mk = () => new SimulationEngine({
 const go = (e: SimulationEngine, id: string, type: string, p: any = {}) =>
   e.execute(command(id, type, e, p));
 
+function inventory(e: SimulationEngine) {
+  go(e, 'DL', 'CreateDeal', {
+    companyId: 'COMPANY-000001', counterpartyId: 'SUPPLIER',
+    expectedVolumeMilliM3: 100_000, financeSourceIds: [], currency: 'EUR',
+    description: 'Test deal',
+  });
+  go(e, 'DA', 'ActivateDeal', { dealId: 'DEAL-000001' });
+  go(e, 'LOT', 'CreateLot', {
+    dealId: 'DEAL-000001', ownerCompanyId: 'COMPANY-000001',
+    custodyActorId: 'actor.test', locationId: 'LOCATION-000001',
+    originalVolumeMilliM3: 50_000, freshness: 'FRESH', certainty: 'INSPECTED',
+    composition: { species: [{ id: 'species.birch', basisPoints: 10000 }], assortment: [{ id: 'assortment.sawlogs', basisPoints: 10000 }], quality: [{ id: 'quality.birch.b', basisPoints: 10000 }] },
+  });
+  go(e, 'BATCH', 'CreateInitialBatch', {
+    lotId: 'LOT-000001', volumeMilliM3: 50_000,
+    composition: { species: [{ id: 'species.birch', basisPoints: 10000 }], assortment: [{ id: 'assortment.sawlogs', basisPoints: 10000 }], quality: [{ id: 'quality.birch.b', basisPoints: 10000 }] },
+  });
+}
+
 function world() {
   const e = mk();
   go(e, 'C', 'CreateCompany', { displayName: 'Mežtirgus SIA', reputationBasisPoints: 5000 });
@@ -34,9 +53,11 @@ function world() {
     expiryTimestamp: 200_000,
   });
   go(e, 'QA', 'AcceptExportQuote', { quoteId: 'EXQUOTE-000001' });
+  inventory(e);
   go(e, 'ORD', 'CreateExportOrder', {
     quoteId: 'EXQUOTE-000001', exportBuyerId: 'EXBUYER-000001',
-    volumeMilliM3: 30_000, requiredDocumentTypes: ['CERT_OF_ORIGIN', 'PHYTOSANITARY'],
+    volumeMilliM3: 30_000, batchIds: ['BATCH-000001'],
+    requiredDocumentTypes: ['CERT_OF_ORIGIN', 'PHYTOSANITARY'],
   });
   return e;
 }

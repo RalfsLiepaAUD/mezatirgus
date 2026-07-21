@@ -38,6 +38,8 @@ export interface ExportOrder {
   destinationLocationId: string;
   routeEdgeIds: string[];
   volumeMilliM3: number;
+  batchIds: string[];
+  inventoryConsumed: boolean;
   requiredDocumentTypes: string[];
   documentStatus: 'PENDING' | 'VALID' | 'MISSING';
   bookingStatus: 'PENDING' | 'CONFIRMED' | 'SLOT_MISSED';

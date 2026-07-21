@@ -24,20 +24,26 @@ function scheduleNext(e: SimulationEngine, cmdType: string, interval: number, ph
 
 /** Defensive competitor-facing view — only public offer fields, no hidden truth. */
 export interface PublicOfferSummary {
-  id: string; supplierId: string; companyId: string;
+  id: string; supplierId: string;
   status: string; offeredVolumeMilliM3: number; baseRateMinorPerM3: number;
   effectiveRateMinorPerM3: number; expiryTimestamp: number;
 }
 export function publicOffers(e: SimulationEngine, companyId: string): PublicOfferSummary[] {
   return e.suppliers.snapshot().offers
-    .filter(o => o.companyId === companyId)
-    .map(o => ({
-      id: o.id, supplierId: o.supplierId, companyId: o.companyId,
-      status: o.status, offeredVolumeMilliM3: o.offeredVolumeMilliM3,
-      baseRateMinorPerM3: o.baseRateMinorPerM3,
-      effectiveRateMinorPerM3: o.effectiveRateMinorPerM3,
-      expiryTimestamp: o.expiryTimestamp,
-    }));
+    .filter(o => o.status === 'OPEN' || o.status === 'ACCEPTED')
+    .map(o => {
+      const rel = e.suppliers.snapshot().relationships
+        .find(x => x.supplierId === o.supplierId && x.companyId === companyId);
+      const adjustment = rel ? Math.floor(rel.warmthBasisPoints / 1000) : 0;
+      const effective = o.baseRateMinorPerM3 - adjustment;
+      return {
+        id: o.id, supplierId: o.supplierId,
+        status: o.status, offeredVolumeMilliM3: o.offeredVolumeMilliM3,
+        baseRateMinorPerM3: o.baseRateMinorPerM3,
+        effectiveRateMinorPerM3: Math.max(1, effective),
+        expiryTimestamp: o.expiryTimestamp,
+      };
+    });
 }
 
 const composition = {
@@ -75,9 +81,7 @@ export function registerSchedulerCommands(e: SimulationEngine) {
       const rateBase = 4_000 + rng.nextUint32() % 3_000; // €40-70/m³
       const contact = e.suppliers.snapshot().contacts.find(ct => ct.supplierId === supplier.id);
       if (!contact) continue;
-      // Look up company from relationship (supplier is not directly associated)
-      const rel = e.suppliers.snapshot().relationships.find(r => r.supplierId === supplier.id);
-      const companyId = rel?.companyId ?? 'COMPANY-000001';
+      // No companyId — offer is shared for all eligible companies
       const locId = e.routing.snapshot().locations.find(l => l.roles.includes('ROADSIDE'))?.id ?? e.routing.snapshot().locations[0]?.id;
       if (!locId) continue;
       const offerResult = e.execute({
@@ -87,7 +91,7 @@ export function registerSchedulerCommands(e: SimulationEngine) {
         requestedExecutionTime: e.clock.currentGameTime,
         actorId: 'actor.autonomous',
         payload: {
-          supplierId: supplier.id, contactId: contact.id, companyId,
+          supplierId: supplier.id, contactId: contact.id,
           locationId: locId, expiryTimestamp: e.clock.currentGameTime + 86400 * 3,
           volumeBasis: 'AGREED_VOLUME', offeredVolumeMilliM3: offeredVolume,
           baseRateMinorPerM3: rateBase, requiredDocumentTypes: ['DELIVERY_NOTE'],
@@ -169,7 +173,7 @@ export function registerSchedulerCommands(e: SimulationEngine) {
           issuedGameTime: e.clock.currentGameTime,
           requestedExecutionTime: e.clock.currentGameTime,
           actorId: 'actor.autonomous',
-          payload: { offerId: pick.offer.id },
+          payload: { offerId: pick.offer.id, companyId: competitorId },
           schemaVersion: 1,
         });
       }

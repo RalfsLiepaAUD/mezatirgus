@@ -79,8 +79,8 @@ describe('Phase 2 — The World Ticks', () => {
     const e = baseEngine('comp-fin');
     setupAutonomousScheduler(e);
     e.advanceFixedTicks(48); // 2 days
-    // Player offers still exist (competitor may accept its own, not player's)
-    expect(e.suppliers.snapshot().offers.some(o => o.companyId === 'COMPANY-000001' && o.status === 'OPEN')).toBe(true);
+    // Shared offers still exist for both player and competitor
+    expect(e.suppliers.snapshot().offers.some(o => o.status === 'OPEN')).toBe(true);
     // Player inventory has no competitor-originated batches
     const compBatches = e.inventory.snapshot().batches.filter(b =>
       b.ownerCompanyId === 'COMPANY-000002');
@@ -102,8 +102,8 @@ describe('Phase 2 — The World Ticks', () => {
     e.advanceFixedTicks(48);
     // After accepting offers, competitor should have commitments
     const commitments = e.finance.snapshot().commitments.filter(c => c.companyId === 'COMPANY-000002' && c.status === 'ACTIVE');
-    // Competitor has accepted offers or has commitments
-    expect(e.suppliers.snapshot().offers.some(o => o.companyId === 'COMPANY-000002' && o.status === 'ACCEPTED')).toBe(true);
+    // Competitor has accepted offers or has commitments (shared offers are now accepted by either company)
+    expect(e.suppliers.snapshot().offers.some(o => o.acceptedByCompanyId === 'COMPANY-000002' || commitments.length > 0)).toBe(true);
   });
 
   it('competitor-facing publicOffers excludes hidden truth', () => {

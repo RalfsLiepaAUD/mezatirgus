@@ -145,6 +145,7 @@ export class ExportsDomain {
         o.receivableId = p.receivableId;
         o.transactionId = p.transactionId;
         o.costLayerId = p.costLayerId;
+        o.inventoryConsumed = true;
         o.sourceEventIds.push(event.eventId);
       }
 

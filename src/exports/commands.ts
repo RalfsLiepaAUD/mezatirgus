@@ -113,20 +113,72 @@ export function registerExportCommands(e: SimulationEngine) {
     if (!int(p.volumeMilliM3, 1))
       return reject(c, 'INVALID_VOLUME', 'Positive volume required');
 
+    // Validate inventory batch references
+    const batchIds: string[] = Array.isArray(p.batchIds) ? p.batchIds.map(String) : [];
+    if (!batchIds.length) return reject(c, 'INVALID_INVENTORY', 'At least one batch required');
+    let totalBatchVolume = 0;
+    const seen = new Set<string>();
+    for (const bid of batchIds) {
+      if (seen.has(bid)) return reject(c, 'DUPLICATE_BATCH', 'Duplicate batch ID');
+      seen.add(bid);
+      const batch = e.inventory.batch(bid);
+      if (!batch) return reject(c, 'INVALID_BATCH', `Batch ${bid} not found`);
+      if (batch.ownerCompanyId !== eb.companyId)
+        return reject(c, 'BATCH_OWNER', `Batch ${bid} not owned by this company`);
+      const available = batch.currentVolumeMilliM3 - batch.reservedVolumeMilliM3 - batch.allocatedVolumeMilliM3;
+      if (available <= 0) return reject(c, 'BATCH_DEPLETED', `Batch ${bid} has no available volume`);
+      totalBatchVolume += available;
+    }
+    const orderVolume = Number(p.volumeMilliM3);
+    if (totalBatchVolume < orderVolume)
+      return reject(c, 'INSUFFICIENT_INVENTORY', `Only ${totalBatchVolume} available, need ${orderVolume}`);
+
     const docs = Array.isArray(p.requiredDocumentTypes) ? p.requiredDocumentTypes.map(String) : ['CERT_OF_ORIGIN', 'PHYTOSANITARY'];
-    const freightTotal = Number(BigInt(Number(p.volumeMilliM3)) * BigInt(q.rateMinorPerM3) / 1000n) +
+    const freightTotal = Number(BigInt(orderVolume) * BigInt(q.rateMinorPerM3) / 1000n) +
       q.handlingCostMinor + q.documentationCostMinor;
     if (!Number.isSafeInteger(freightTotal)) return reject(c, 'PRICE_OVERFLOW', 'Price overflow');
 
+    // Create inventory reservations for each batch
+    const orderId = e.ids.next('export_order', 'EXORDER');
+    let remainingVolume = orderVolume;
+    const reservationEvents: Array<{ eventId: string; eventType: string; payload: any }> = [];
+    for (const bid of batchIds) {
+      const batch = e.inventory.batch(bid)!;
+      const avail = batch.currentVolumeMilliM3 - batch.reservedVolumeMilliM3 - batch.allocatedVolumeMilliM3;
+      const takeVolume = Math.min(avail, remainingVolume);
+      if (takeVolume <= 0) continue;
+      const resId = e.ids.next('reservation', 'RESERVATION');
+      const resIdentity = e.reserveEventIdentity();
+      const reservationPayload = {
+        reservation: {
+          id: resId, companyId: eb.companyId, batchId: bid,
+          purpose: 'EXPORT', sourceObjectId: orderId,
+          volumeMilliM3: takeVolume, createdTimestamp: e.clock.currentGameTime,
+          status: 'ACTIVE' as const, sourceEventIds: [],
+        },
+        scheduledEvents: [],
+      };
+      e.emitReservedEvent(resIdentity, {
+        eventType: 'InventoryReservationCreated',
+        phase: SimulationPhase.COMMANDS, actorId: c.actorId,
+        targetIds: [bid], parentCauseId: c.commandId,
+        visibility: 'PLAYER_PRIVATE', payload: reservationPayload,
+      });
+      reservationEvents.push({ eventId: resIdentity.eventId, eventType: 'InventoryReservationCreated', payload: reservationPayload });
+      remainingVolume -= takeVolume;
+    }
+
     const order: ExportOrder = {
-      id: e.ids.next('export_order', 'EXORDER'),
+      id: orderId,
       quoteId: q.id,
       companyId: eb.companyId,
       exportBuyerId: eb.id,
       portLocationId: q.portLocationId,
       destinationLocationId: q.destinationLocationId,
       routeEdgeIds: [...q.routeEdgeIds],
-      volumeMilliM3: Number(p.volumeMilliM3),
+      volumeMilliM3: orderVolume,
+      batchIds,
+      inventoryConsumed: false,
       requiredDocumentTypes: docs,
       documentStatus: 'PENDING',
       bookingStatus: 'PENDING',
@@ -143,7 +195,8 @@ export function registerExportCommands(e: SimulationEngine) {
       sourceEventIds: [],
     };
     const x = emit(e, c, 'ExportOrderCreated', { order });
-    return { accepted: true as const, commandId: c.commandId, emittedEventIds: [x.eventId] };
+    const allIds = [x.eventId, ...reservationEvents.map(r => r.eventId)];
+    return { accepted: true as const, commandId: c.commandId, emittedEventIds: allIds };
   });
 
   // ── Document validation ─────────────────────────────────────────────
@@ -219,6 +272,28 @@ export function registerExportCommands(e: SimulationEngine) {
     const o = e.exports.order(String(c.payload.orderId));
     if (!o || o.status !== 'ACCEPTED' || o.receivableId)
       return reject(c, 'INVALID_STATE', 'Accepted unpaid order required');
+    if (o.inventoryConsumed)
+      return reject(c, 'INVENTORY_ALREADY_CONSUMED', 'Inventory already consumed');
+
+    // Release self-reservations, then validate and create depletion entries
+    const reservations = e.inventory.snapshot().reservations
+      .filter(r => o.batchIds.includes(r.batchId) && r.status === 'ACTIVE' && r.purpose === 'EXPORT');
+    const reservationReleases: Array<{ reservationId: string }> = reservations.map(r => ({ reservationId: r.id }));
+    const batchDepletions: Array<{ batchId: string; volumeMilliM3: number }> = [];
+    let acceptedRemaining = o.acceptedVolumeMilliM3;
+    for (const bid of o.batchIds) {
+      const batch = e.inventory.batch(bid);
+      if (!batch) return reject(c, 'BATCH_MISSING', `Batch ${bid} not found`);
+      // Use current minus allocated (ignoring self-reservations which we're about to release)
+      const available = batch.currentVolumeMilliM3 - batch.allocatedVolumeMilliM3;
+      if (available <= 0) return reject(c, 'BATCH_EMPTY', `Batch ${bid} has no available volume`);
+      const takeVolume = Math.min(available, acceptedRemaining);
+      if (takeVolume <= 0) continue;
+      batchDepletions.push({ batchId: bid, volumeMilliM3: takeVolume });
+      acceptedRemaining -= takeVolume;
+    }
+    if (acceptedRemaining > 0)
+      return reject(c, 'INSUFFICIENT_INVENTORY', `Only depleted ${o.acceptedVolumeMilliM3 - acceptedRemaining}, needed ${o.acceptedVolumeMilliM3}`);
 
     const eb = e.exports.buyer(o.exportBuyerId)!;
     const revenueMinor = Number(BigInt(o.acceptedVolumeMilliM3) * BigInt(o.rateMinorPerM3) / 1000n);
@@ -330,6 +405,7 @@ export function registerExportCommands(e: SimulationEngine) {
         payable, costTransaction: costTx,
         scheduledEvents,
         receivableId, transactionId: journalId, costLayerId, payableId,
+        batchDepletions, reservationReleases, inventoryConsumed: true,
       },
     });
 
@@ -345,7 +421,11 @@ export function registerExportCommands(e: SimulationEngine) {
     const o = e.exports.order(String(c.payload.orderId));
     if (!o || ['SETTLED', 'CANCELLED'].includes(o.status))
       return reject(c, 'INVALID_STATE', 'Order cannot be cancelled');
-    const x = emit(e, c, 'ExportOrderCancelled', { orderId: o.id });
+    // Gather only this order's reservations for release
+    const reservations = e.inventory.snapshot().reservations
+      .filter(r => o.batchIds.includes(r.batchId) && r.status === 'ACTIVE' && r.purpose === 'EXPORT' && r.sourceObjectId === o.id);
+    const reservationReleases = reservations.map(r => ({ reservationId: r.id }));
+    const x = emit(e, c, 'ExportOrderCancelled', { orderId: o.id, reservationReleases });
     return { accepted: true as const, commandId: c.commandId, emittedEventIds: [x.eventId] };
   });
 }

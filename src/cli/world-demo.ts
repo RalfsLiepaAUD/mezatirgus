@@ -115,8 +115,8 @@ console.log(`  Buyer hunger:           ${buyer?.hungerBasisPoints ?? 0} bp`);
 console.log(`  Active price cards:     ${priceCards.filter(pc => pc.status === 'ACTIVE').length}`);
 console.log(`  Offers generated:       ${offers.length}`);
 console.log(`  Offers expired:         ${offers.filter(o => o.status === 'EXPIRED').length}`);
-console.log(`  Offers accepted (comp): ${offers.filter(o => o.companyId === 'COMPANY-000002' && o.status === 'ACCEPTED').length}`);
-console.log(`  Player offers open:     ${offers.filter(o => o.companyId === 'COMPANY-000001' && o.status === 'OPEN').length}`);
+console.log(`  Offers accepted (comp): ${offers.filter(o => o.acceptedByCompanyId === 'COMPANY-000002' && o.status === 'ACCEPTED').length}`);
+console.log(`  Open shared offers:     ${offers.filter(o => o.status === 'OPEN').length}`);
 console.log(`  State checksum:         ${e.stateChecksum()}`);
 console.log(`  Event log:              ${e.eventLogChecksum()}`);
 

@@ -163,7 +163,20 @@ export function runCanonicalScenario(e: SimulationEngine): ScenarioResult {
     go(e, 'UPD', 'UpdateMarketDriver', { driverId: 'MARKET_DRIVER_000001', valueBasisPoints: 7500, direction: 'UPWARD' });
     go(e, 'SEAS', 'AdvanceMarketSeason', { season: 'AUTUMN' });
 
-    // ── Phase 10: Export setup ─────────────────────────────────────
+    // ── Phase 10: Export inventory batch ─────────────────────────────
+    go(e, 'DEAL2', 'CreateDeal', {
+      companyId: 'COMPANY-000001', counterpartyId: 'supplier.export',
+      currency: 'EUR', expectedVolumeMilliM3: 30_000, description: 'export deal', financeSourceIds: [],
+    });
+    go(e, 'DA2', 'ActivateDeal', { dealId: 'DEAL-000002' });
+    go(e, 'LOT2', 'CreateLot', {
+      dealId: 'DEAL-000002', ownerCompanyId: 'COMPANY-000001', custodyActorId: 'COMPANY-000001',
+      locationId: 'LOCATION-000004', originalVolumeMilliM3: 30_000, composition,
+      freshness: 'FRESH', certainty: 'INSPECTED',
+    });
+    go(e, 'BATCH2', 'CreateInitialBatch', { lotId: 'LOT-000002', volumeMilliM3: 30_000, composition });
+
+    // ── Phase 11: Export setup ─────────────────────────────────────
     go(e, 'EB', 'CreateExportBuyer', {
       configId: 'buyer.export_europe', displayName: 'Rotterdam Timber BV', fictional: true,
       buyerType: 'EXPORT_SAWMILL', companyId: 'COMPANY-000001', locationId: 'LOCATION-000005',
@@ -177,7 +190,8 @@ export function runCanonicalScenario(e: SimulationEngine): ScenarioResult {
     go(e, 'EQA', 'AcceptExportQuote', { quoteId: 'EXQUOTE-000001' });
     go(e, 'EORD', 'CreateExportOrder', {
       quoteId: 'EXQUOTE-000001', exportBuyerId: 'EXBUYER-000001',
-      volumeMilliM3: 30_000, requiredDocumentTypes: ['CERT_OF_ORIGIN', 'PHYTOSANITARY'],
+      volumeMilliM3: 30_000, batchIds: ['BATCH-000002'],
+      requiredDocumentTypes: ['CERT_OF_ORIGIN', 'PHYTOSANITARY'],
     });
     go(e, 'DOC', 'ValidateExportDocuments', { orderId: 'EXORDER-000001' });
     go(e, 'SLOT', 'ConfirmExportSlot', { orderId: 'EXORDER-000001', delaySeconds: 3600 });
