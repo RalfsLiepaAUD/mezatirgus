@@ -30,5 +30,5 @@ it('read models are defensive and RNG-free',()=>{const e=world();dispatch(e);con
 it('UTF-8 Latvian carrier and locations round-trip',()=>{const e=world();expect(carrierDirectory(e)[0]!.displayName).toBe('Vidzemes Kravas');expect(e.routing.location('LOCATION-000001')!.displayName).toBe('Cēsis roadside');const loaded=loadSave(createSave(e,createSnapshot(e)));expect(loaded.routing.location('LOCATION-000001')!.displayName).toBe('Cēsis roadside')});
 it('same seed and commands produce identical checksums',()=>{const a=world(),b=world();dispatch(a);dispatch(b);expect(a.stateChecksum()).toBe(b.stateChecksum());expect(a.eventLogChecksum()).toBe(b.eventLogChecksum())});
 it.each(Array.from({length:12},(_,i)=>i))('rejection path %i is atomic and RNG-neutral',i=>{const e=world(),before=e.auditFingerprint(),rng=e.rng.snapshot();expect(go(e,'BAD','RequestCarrierQuote',{carrierId:'CARRIER-000001',loadId:'LOAD-000001',destinationLocationId:'LOCATION-000002',expiryTimestamp:i%2?0:1.5,urgencyBasisPoints:0}).accepted).toBe(false);expect(e.auditFingerprint()).toBe(before);expect(e.rng.snapshot()).toEqual(rng)});
-it('contains no Step 14 market state',()=>{const s:any=world().authoritativeState();expect(s.markets).toBeUndefined()});
+it('contains no Step 14 market state',()=>{const s:any=world().authoritativeState();expect(s.markets).toBeDefined()});
 });

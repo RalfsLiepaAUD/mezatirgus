@@ -1,36 +1,37 @@
 {
-    "name":  "meztrigus",
-    "version":  "0.1.0",
-    "private":  true,
-    "type":  "module",
-    "scripts":  {
-                    "build":  "tsc -p tsconfig.json",
-                    "validate:config":  "tsx src/cli/validate-config.ts",
-                    "report:provenance":  "tsx src/cli/validate-config.ts --write-reports",
-                    "test":  "vitest run",
-                    "sim:demo":  "tsx src/sim/demo.ts",
-                    "sim:replay":  "tsx src/sim/replay.ts",
-                    "sim:inspect-save":  "tsx src/sim/inspect-save.ts",
-                    "finance:demo":  "tsx src/cli/finance-demo.ts",
-                    "map:demo":  "tsx src/cli/map-demo.ts",
-                    "inventory:demo":  "tsx src/cli/inventory-demo.ts",
-                    "buyer:demo":  "tsx src/cli/buyer-demo.ts",
-                    "supplier:demo":  "tsx src/cli/supplier-demo.ts",
-                    "transport:demo":  "tsx src/cli/transport-demo.ts",
-                    "auction:demo":  "tsx src/cli/auction-demo.ts",
-                    "forest:demo":  "tsx src/cli/forest-demo.ts",
-"operations:demo":  "tsx src/cli/operations-demo.ts",
-"agreement:demo":  "tsx src/cli/agreement-demo.ts",
-"export:demo":  "tsx src/cli/export-demo.ts"
-                },
-    "engines":  {
-                    "node":  "\u003e=22"
-                },
-    "devDependencies":  {
-                            "@types/node":  "^24.0.0",
-                            "tsx":  "^4.20.0",
-                            "typescript":  "^5.8.0",
-                            "vitest":  "^3.2.0",
-                            "zod":  "^3.25.0"
-                        }
+    "name": "meztrigus",
+    "version": "0.1.0",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "build": "tsc -p tsconfig.json",
+        "validate:config": "tsx src/cli/validate-config.ts",
+        "report:provenance": "tsx src/cli/validate-config.ts --write-reports",
+        "test": "vitest run",
+        "sim:demo": "tsx src/sim/demo.ts",
+        "sim:replay": "tsx src/sim/replay.ts",
+        "sim:inspect-save": "tsx src/sim/inspect-save.ts",
+        "finance:demo": "tsx src/cli/finance-demo.ts",
+        "map:demo": "tsx src/cli/map-demo.ts",
+        "inventory:demo": "tsx src/cli/inventory-demo.ts",
+        "buyer:demo": "tsx src/cli/buyer-demo.ts",
+        "supplier:demo": "tsx src/cli/supplier-demo.ts",
+        "transport:demo": "tsx src/cli/transport-demo.ts",
+        "auction:demo": "tsx src/cli/auction-demo.ts",
+        "forest:demo": "tsx src/cli/forest-demo.ts",
+        "operations:demo": "tsx src/cli/operations-demo.ts",
+        "agreement:demo": "tsx src/cli/agreement-demo.ts",
+        "export:demo": "tsx src/cli/export-demo.ts",
+        "market:demo": "tsx src/cli/market-demo.ts"
+    },
+    "engines": {
+        "node": ">=22"
+    },
+    "devDependencies": {
+        "@types/node": "^24.0.0",
+        "tsx": "^4.20.0",
+        "typescript": "^5.8.0",
+        "vitest": "^3.2.0",
+        "zod": "^3.25.0"
+    }
 }

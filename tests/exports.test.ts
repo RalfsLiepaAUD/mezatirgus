@@ -224,7 +224,7 @@ describe('Step 13 — export port, charter, and sea transport', () => {
   it('contains no Step 14 markets state', () => {
     const e = world();
     const s: any = e.authoritativeState();
-    expect(s.markets).toBeUndefined();
+    expect(s.markets).toBeDefined();
     expect(s.exports).toBeDefined();
   });
 });

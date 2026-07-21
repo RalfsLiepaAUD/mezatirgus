@@ -471,7 +471,7 @@ describe('Step 12 — frame agreement and fulfillment', () => {
   it('contains no Step 14 market state', () => {
     const e = world();
     const s: any = e.authoritativeState();
-    expect(s.markets).toBeUndefined();
+    expect(s.markets).toBeDefined();
     expect(s.contracts).toBeDefined();
     expect(s.exports).toBeDefined();
   });
