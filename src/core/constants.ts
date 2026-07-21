@@ -1,6 +1,6 @@
-export const CORE_VERSION = "0.11.0";
-export const SAVE_SCHEMA_VERSION = 10;
-export const SNAPSHOT_SCHEMA_VERSION = 10;
+export const CORE_VERSION = "0.12.0";
+export const SAVE_SCHEMA_VERSION = 11;
+export const SNAPSHOT_SCHEMA_VERSION = 11;
 export const EVENT_SCHEMA_VERSION = 1;
 export const COMMAND_SCHEMA_VERSION = 1;
 export const TICK_MODEL_VERSION = 1;

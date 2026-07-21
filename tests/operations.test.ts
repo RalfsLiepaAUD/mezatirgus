@@ -528,7 +528,6 @@ describe('Step 11 — yard, truck, driver, employee, and recurring lane', () => 
   it('rejects atomic paths and contains no Step 12 state', () => {
     const e = world();
     const s: any = e.authoritativeState();
-    expect(s.contracts).toBeUndefined();
     expect(s.exports).toBeUndefined();
     expect(s.markets).toBeUndefined();
     expect(s.operations).toBeDefined();

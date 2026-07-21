@@ -69,7 +69,7 @@ Status: **IMPLEMENTED**. Scope is exactly `FIRST_FULL_SKELETON_PLAN.md` §11.
 - truck maintenance is scheduled/completed via commands, not auto-triggered
 - employee work is capacity tokens (no hourly tracking or time sheets)
 - lane stability threshold is hardcoded at 5 in CreateLane command
-- Step 12 was not started
+- Step 12 (frame agreement) implemented separately
 
 ## Version
 CORE_VERSION = "0.11.0", SAVE_SCHEMA_VERSION = 10, SNAPSHOT_SCHEMA_VERSION = 10

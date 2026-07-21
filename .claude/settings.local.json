@@ -6,7 +6,8 @@
       "Bash(pnpm validate:config)",
       "Bash",
       "Edit",
-      "Write"
+      "Write",
+      "cd"
     ]
   }
 }
