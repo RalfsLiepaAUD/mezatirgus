@@ -282,3 +282,80 @@ describe('Phase 2 Milestone 2 — Export Cancellation Reservation Release', () =
     expect(a.inventory.snapshot().reservations).toEqual(b.inventory.snapshot().reservations);
   });
 });
+
+describe('Phase 2 Milestone 2 — Export full-depletion regression', () => {
+
+  it('full depletion of one batch zeros reserved/allocated and passes invariants', () => {
+    const e = mk(); setup(e); createInventory(e, 50_000);
+    createExportOrder(e, { volumeMilliM3: 50_000 });
+    fullExportFlow(e, 50_000);
+    go(e, 'STL', 'SettleExportOrder', { orderId: 'EXORDER-000001' });
+    const batch = e.inventory.batch('BATCH-000001')!;
+    expect(batch.status).toBe('DEPLETED');
+    expect(batch.reservedVolumeMilliM3).toBe(0);
+    expect(batch.allocatedVolumeMilliM3).toBe(0);
+    expect(batch.currentVolumeMilliM3).toBe(0);
+    expect(batch.depletedVolumeMilliM3).toBe(50_000);
+  });
+
+  it('full depletion across multiple export batches', () => {
+    // Two single-batch orders, each fully depleting their batch independently
+    const a = mk(); setup(a); createInventory(a, 30_000);
+    createExportOrder(a, { volumeMilliM3: 30_000 });
+    fullExportFlow(a, 30_000);
+    go(a, 'STL', 'SettleExportOrder', { orderId: 'EXORDER-000001' });
+    expect(a.inventory.batch('BATCH-000001')!.status).toBe('DEPLETED');
+    expect(a.inventory.batch('BATCH-000001')!.reservedVolumeMilliM3).toBe(0);
+
+    const b = mk(); setup(b); createInventory(b, 20_000);
+    createExportOrder(b, { volumeMilliM3: 20_000 });
+    fullExportFlow(b, 20_000);
+    go(b, 'STL2', 'SettleExportOrder', { orderId: 'EXORDER-000001' });
+    expect(b.inventory.batch('BATCH-000001')!.status).toBe('DEPLETED');
+    expect(b.inventory.batch('BATCH-000001')!.reservedVolumeMilliM3).toBe(0);
+  });
+
+  it('partial depletion remains unchanged', () => {
+    const e = mk(); setup(e); createInventory(e, 50_000);
+    createExportOrder(e, { volumeMilliM3: 20_000 });
+    fullExportFlow(e, 20_000);
+    go(e, 'STL3', 'SettleExportOrder', { orderId: 'EXORDER-000001' });
+    const batch = e.inventory.batch('BATCH-000001')!;
+    expect(batch.status).not.toBe('DEPLETED');
+    expect(batch.currentVolumeMilliM3).toBe(30_000);
+    expect(batch.depletedVolumeMilliM3).toBe(20_000);
+  });
+
+  it('no manual ReleaseInventoryReservation required for invariants', () => {
+    const e = mk(); setup(e); createInventory(e, 50_000);
+    createExportOrder(e, { volumeMilliM3: 50_000 });
+    fullExportFlow(e, 50_000);
+    // No pre-release — SettleExportOrder must handle it alone
+    go(e, 'STL4', 'SettleExportOrder', { orderId: 'EXORDER-000001' });
+  });
+
+  it('replay/save/load determinism', () => {
+    const e = mk(); setup(e); createInventory(e, 50_000);
+    createExportOrder(e, { volumeMilliM3: 50_000 });
+    fullExportFlow(e, 50_000);
+    go(e, 'STL5', 'SettleExportOrder', { orderId: 'EXORDER-000001' });
+    const snap = createSnapshot(e);
+    const save = createSave(e, snap);
+    const loaded = loadSave(save);
+    expect(loaded.stateChecksum()).toBe(e.stateChecksum());
+    expect(loaded.inventory.snapshot()).toEqual(e.inventory.snapshot());
+  });
+
+  it('deterministic depletion across two seed runs', () => {
+    const a = mk(); setup(a); createInventory(a, 50_000);
+    createExportOrder(a, { volumeMilliM3: 50_000 });
+    fullExportFlow(a, 50_000);
+    go(a, 'STL', 'SettleExportOrder', { orderId: 'EXORDER-000001' });
+    const b = mk(); setup(b); createInventory(b, 50_000);
+    createExportOrder(b, { volumeMilliM3: 50_000 });
+    fullExportFlow(b, 50_000);
+    go(b, 'STL', 'SettleExportOrder', { orderId: 'EXORDER-000001' });
+    expect(a.stateChecksum()).toBe(b.stateChecksum());
+    expect(a.inventory.snapshot().batches).toEqual(b.inventory.snapshot().batches);
+  });
+});
