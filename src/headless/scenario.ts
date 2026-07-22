@@ -82,14 +82,14 @@ export function runCanonicalScenario(e: SimulationEngine): ScenarioResult {
     go(e, 'YD', 'CreateYard', {
       companyId: 'COMPANY-000001', locationId: 'LOCATION-000001',
       displayName: 'Cēsis yard', totalCapacityMilliM3: 100_000,
-      storageCostMinorPerTickPerM3: 1, sortingCostMinorPerM3: 3_000,
+      storageCostMinorPerTickPerM3: 1, sortingCostMinorPerM3: 3_000, sortingCapable: true,
     });
     go(e, 'EMP', 'CreateEmployee', {
       companyId: 'COMPANY-000001', displayName: 'Pēteris Ozols', role: 'YARD_WORKER', wageMinorPerHour: 1_200,
     });
     go(e, 'AE', 'AssignEmployeeToYard', { employeeId: 'EMPLOYEE-000001', yardId: 'YARD-000001' });
     go(e, 'B3', 'CreateInitialBatch', { lotId: 'LOT-000001', volumeMilliM3: 15_000, composition });
-    go(e, 'RV', 'SetBatchRecoveryVolumes', { batchId: 'BATCH-000002', volumes: [{ label: 'A', volumeMilliM3: 7500 }, { label: 'B', volumeMilliM3: 7400 }, { label: 'loss', volumeMilliM3: 100 }] });
+    go(e, 'RV', 'SetBatchRecoveryVolumes', { batchId: 'BATCH-000002', volumes: [{ label: 'A', volumeMilliM3: 7500 }, { label: 'B', volumeMilliM3: 7400 }, { label: 'LOSS', volumeMilliM3: 100 }] });
     go(e, 'SORT', 'SortBatchAtYard', { yardId: 'YARD-000001', batchId: 'BATCH-000002', conductType: 'ETHICAL' });
 
     // ── Phase 5: Buyer & frame agreement ───────────────────────────

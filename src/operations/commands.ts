@@ -69,6 +69,7 @@ export function registerOperationsCommands(e: SimulationEngine) {
       usedCapacityMilliM3: 0,
       storageCostMinorPerTickPerM3: Number(p.storageCostMinorPerTickPerM3),
       sortingCostMinorPerM3: Number(p.sortingCostMinorPerM3),
+      sortingCapable: p.sortingCapable === true,
       status: 'ACTIVE',
       createdTimestamp: e.clock.currentGameTime,
       sourceEventIds: [],
@@ -499,52 +500,16 @@ export function registerOperationsCommands(e: SimulationEngine) {
     return { accepted: true as const, commandId: c.commandId, emittedEventIds: [x.eventId] };
   });
 
-  // ── Sorting ─────────────────────────────────────────────────────────
-  e.registerCommandHandler('SortBatchAtYard', c => {
-    const p = c.payload;
-    const batch = e.inventory.batch(String(p.batchId));
-    const yard = e.operations.yard(String(p.yardId));
-    if (!batch || !yard) return reject(c, 'INVALID_REFERENCES', 'Batch and yard required');
-    if (yard.sortingCostMinorPerM3 <= 0)
-      return reject(c, 'NO_SORTING_CAPABILITY', 'Yard lacks sorting capability');
-    if (batch.locationId !== yard.locationId)
-      return reject(c, 'BATCH_NOT_AT_YARD', 'Batch must be physically located at yard');
-    if (batch.status === 'DEPLETED' || batch.status === 'SPLIT' || batch.status === 'MERGED')
-      return reject(c, 'BATCH_CONSUMED', 'Batch already consumed');
-    if (!batch.recoveryVolumes || !batch.recoveryVolumes.length)
-      return reject(c, 'NO_RECOVERY_DATA', 'Batch has no recovery-volume data');
-
-    // Calculate children and loss
-    const childVolTotal = batch.recoveryVolumes.reduce((n, r) => n + r.volumeMilliM3, 0);
-    const lossVolume = batch.currentVolumeMilliM3 - childVolTotal;
-    if (lossVolume < 0)
-      return reject(c, 'RECOVERY_EXCEEDS_BATCH', 'Recovery volumes exceed batch volume');
-
-    // Capacity check — queue if insufficient
-    const neededCapacity = batch.currentVolumeMilliM3;
-    if (yard.usedCapacityMilliM3 + neededCapacity > yard.totalCapacityMilliM3) {
-      const sj: SortJob = {
-        id: e.ids.next('sort_job', 'SORTJOB'),
-        yardId: yard.id,
-        batchId: batch.id,
-        status: 'QUEUED',
-        createdTimestamp: e.clock.currentGameTime,
-        sourceEventIds: [],
-      };
-      emit(e, c, 'SortJobQueued', { job: sj });
-      return { accepted: true as const, commandId: c.commandId, emittedEventIds: [c.commandId] };
-    }
-
-    // Build child batches from recovery volumes
+  // ── Shared sort execution (used by SortBatchAtYard and RetrySortJob) ──
+  function executeSort(e: SimulationEngine, c: CommandEnvelope, batch: Batch, yard: Yard, nonLoss: RecoveryVolumeEntry[], lossVolume: number, conductType = 'ETHICAL'): CommandResult {
     const now = e.clock.currentGameTime;
     const childBatches: Batch[] = [];
     const childCostLayers: CostLayer[] = [];
     const parentCostLayers = e.inventory.snapshot().costLayers
       .filter(cl => cl.attachedToType === 'BATCH' && cl.attachedToId === batch.id && cl.status === 'ACTIVE');
-    const childVolumes = batch.recoveryVolumes.filter(r => r.label !== 'loss' && r.label !== 'Loss' && r.label !== 'LOSS').map(r => r.volumeMilliM3);
+    const childVolumes = nonLoss.map(r => r.volumeMilliM3);
 
-    for (const rv of batch.recoveryVolumes) {
-      if (rv.label === 'loss' || rv.label === 'Loss' || rv.label === 'LOSS') continue;
+    for (const rv of nonLoss) {
       const cId = e.ids.next('batch', 'BATCH');
       const newBatch: Batch = {
         ...structuredClone(batch),
@@ -562,12 +527,12 @@ export function registerOperationsCommands(e: SimulationEngine) {
         certainty: 'HIGH' as any,
         costLayerIds: [],
         ancestryDepth: batch.ancestryDepth + 1,
-        
+        // B2: carry recovery-band identity
+        sortingLabel: rv.label as any,
         historyEventIds: [],
       };
       childBatches.push(newBatch);
 
-      // Allocate parent cost layers pro-rata by volume
       for (const cl of parentCostLayers) {
         const amounts = allocateInteger(cl.totalMinor, childVolumes);
         const attrs = allocateInteger(cl.attributableVolumeMilliM3, childVolumes);
@@ -586,78 +551,157 @@ export function registerOperationsCommands(e: SimulationEngine) {
       }
     }
 
-    // Mark parent cost layers as allocated
     const allocatedParentLayers = parentCostLayers.map(cl => ({ ...cl, id: cl.id, status: 'ALLOCATED' as const }));
 
-    // Calculate sorting cost
+    // Calculate sorting cost (may be zero for capable yards with zero cost)
     const cost = yard.sortingCostMinorPerM3;
-    const totalCost = Number(BigInt(batch.currentVolumeMilliM3) * BigInt(cost) / 1000n);
+    const totalCost = cost > 0 ? Number(BigInt(batch.currentVolumeMilliM3) * BigInt(cost) / 1000n) : 0;
     if (!Number.isSafeInteger(totalCost)) return reject(c, 'COST_OVERFLOW', 'Sorting cost overflow');
 
-    const payableId = e.ids.next('payable', 'PAYABLE');
-    const journalId = e.ids.next('journal', 'JOURNAL');
-    const costLayerId = e.ids.next('cost_layer', 'COST');
-    const identity = e.reserveEventIdentity();
-    const dueTimestamp = now + 3600;
+    let payableId: string | undefined;
+    let journalId: string | undefined;
+    let costLayerId: string | undefined;
+    let identity = e.reserveEventIdentity();
+    let payable: Payable | undefined;
+    let tx: any;
+    let sortingCostLayer: CostLayer | undefined;
+    let scheduledEvents: ScheduledEvent[] = [];
 
-    const payable: Payable = {
-      id: payableId, companyId: yard.companyId, counterpartyId: yard.companyId,
-      principalMinor: totalCost, currency: 'EUR', createdTimestamp: now,
-      dueTimestamp, status: 'COMMITTED', amountPaidMinor: 0,
-      sourceEventId: identity.eventId, sourceObjectIds: [yard.id, batch.id],
+    if (totalCost > 0) {
+      payableId = e.ids.next('payable', 'PAYABLE');
+      journalId = e.ids.next('journal', 'JOURNAL');
+      costLayerId = e.ids.next('cost_layer', 'COST');
+      identity = e.reserveEventIdentity();
+      const dueTimestamp = now + 3600;
+
+      payable = {
+        id: payableId, companyId: yard.companyId, counterpartyId: yard.companyId,
+        principalMinor: totalCost, currency: 'EUR', createdTimestamp: now,
+        dueTimestamp, status: 'COMMITTED', amountPaidMinor: 0,
+        sourceEventId: identity.eventId, sourceObjectIds: [yard.id, batch.id],
+      };
+
+      tx = journalTx(e, journalId, identity.eventId, yard.companyId,
+        totalCost, yard.companyId, [yard.id, batch.id],
+        'Yard sorting operating cost', 'SORTING_COST');
+
+      sortingCostLayer = {
+        id: costLayerId, attachedToType: 'BATCH', attachedToId: batch.id,
+        sourceObjectId: yard.id, category: 'OPERATIONAL', currency: 'EUR',
+        totalMinor: totalCost, attributableVolumeMilliM3: batch.currentVolumeMilliM3,
+        allocationMethod: 'DIRECT', createdTimestamp: now,
+        financeSourceId: payableId, provenanceReference: 'STEP_11_OPERATIONS_RULES',
+        status: 'ACTIVE',
+      };
+
+      scheduledEvents = [
+        scheduled(e, 'PayableBecameDue', dueTimestamp, { payableId }, c.commandId),
+        scheduled(e, 'PayableBecameOverdue', dueTimestamp + 1, { payableId }, c.commandId),
+      ];
+    }
+
+        const resolvedConduct = conductType === 'OPPORTUNISTIC' ? 'OPPORTUNISTIC' : 'ETHICAL';
+    identity = identity ?? e.reserveEventIdentity();
+    const eventPayload: Record<string, unknown> = {
+      yardId: yard.id, batchId: batch.id,
+      sortingCostMinor: totalCost, conductType: resolvedConduct,
+      childBatches, childCostLayers, allocatedParentLayers,
+      lossVolume,
+      scheduledEvents,
     };
+    if (payable) { eventPayload.payable = payable; eventPayload.transaction = tx; eventPayload.costLayer = sortingCostLayer; }
 
-    const tx = journalTx(e, journalId, identity.eventId, yard.companyId,
-      totalCost, yard.companyId, [yard.id, batch.id],
-      'Yard sorting operating cost', 'SORTING_COST');
-
-    const sortingCostLayer: CostLayer = {
-      id: costLayerId, attachedToType: 'BATCH', attachedToId: batch.id,
-      sourceObjectId: yard.id, category: 'OPERATIONAL', currency: 'EUR',
-      totalMinor: totalCost, attributableVolumeMilliM3: batch.currentVolumeMilliM3,
-      allocationMethod: 'DIRECT', createdTimestamp: now,
-      financeSourceId: payableId, provenanceReference: 'STEP_11_OPERATIONS_RULES',
-      status: 'ACTIVE',
-    };
-
-    const scheduledEvents: ScheduledEvent[] = [
-      scheduled(e, 'PayableBecameDue', dueTimestamp, { payableId }, c.commandId),
-      scheduled(e, 'PayableBecameOverdue', dueTimestamp + 1, { payableId }, c.commandId),
-    ];
-
-    const conductType = p.conductType === 'OPPORTUNISTIC' ? 'OPPORTUNISTIC' : 'ETHICAL';
-    const x = e.emitReservedEvent(identity, {
+    const sortEvent = e.emitReservedEvent(identity, {
       eventType: 'YardSortingRecorded',
       phase: SimulationPhase.FINANCIAL_SETTLEMENTS,
       actorId: c.actorId,
       targetIds: [yard.id, batch.id],
       parentCauseId: c.commandId,
       visibility: 'PLAYER_PRIVATE',
-      payload: {
-        yardId: yard.id,
-        batchId: batch.id,
-        sortingCostMinor: totalCost,
-        conductType,
-        childBatches,
-        childCostLayers,
-        allocatedParentLayers,
-        lossVolume,
-        payable,
-        transaction: tx,
-        costLayer: sortingCostLayer,
-        scheduledEvents,
-      },
+      payload: eventPayload,
     });
 
     emit(e, c, 'YardSortingConductRecorded', {
-      yardId: yard.id,
-      batchId: batch.id,
-      conductType,
-      gameTime: now,
+      yardId: yard.id, batchId: batch.id, conductType: resolvedConduct, gameTime: now,
     });
 
-    const allIds = [x.eventId];
-    return { accepted: true as const, commandId: c.commandId, emittedEventIds: allIds };
+    return { accepted: true as const, commandId: c.commandId, emittedEventIds: [sortEvent.eventId] };
+  }
+  // ── Sorting ─────────────────────────────────────────────────────────
+  e.registerCommandHandler('SortBatchAtYard', c => {
+    const p = c.payload;
+    const batch = e.inventory.batch(String(p.batchId));
+    const yard = e.operations.yard(String(p.yardId));
+    if (!batch || !yard) return reject(c, 'INVALID_REFERENCES', 'Batch and yard required');
+    // B3: use explicit sortingCapable field, not cost
+    if (!yard.sortingCapable)
+      return reject(c, 'NO_SORTING_CAPABILITY', 'Yard lacks sorting capability');
+    if (batch.locationId !== yard.locationId)
+      return reject(c, 'BATCH_NOT_AT_YARD', 'Batch must be physically located at yard');
+    if (batch.status === 'DEPLETED' || batch.status === 'SPLIT' || batch.status === 'MERGED')
+      return reject(c, 'BATCH_CONSUMED', 'Batch already consumed');
+    if (batch.status === 'CANCELLED' || batch.status === 'CLOSED')
+      return reject(c, 'BATCH_CONSUMED', 'Batch already consumed');
+    if (!batch.recoveryVolumes || !batch.recoveryVolumes.length)
+      return reject(c, 'NO_RECOVERY_DATA', 'Batch has no recovery-volume data');
+
+    // B1: compute loss from explicit loss entry, children from non-loss entries
+    const nonLoss = batch.recoveryVolumes.filter(r => r.label !== 'LOSS');
+    const lossEntry = batch.recoveryVolumes.find(r => r.label === 'LOSS');
+    const childSum = nonLoss.reduce((n, r) => n + r.volumeMilliM3, 0);
+    const lossVolume = lossEntry ? lossEntry.volumeMilliM3 : 0;
+    if (childSum + lossVolume !== batch.currentVolumeMilliM3)
+      return reject(c, 'VOLUME_MISMATCH', 'Children plus loss must equal parent volume');
+    if (lossVolume < 0) return reject(c, 'INVALID_LOSS', 'Loss volume cannot be negative');
+
+    // B4: reject duplicate queued job for this batch
+    if (e.operations.snapshot().sortJobs.some(sj => sj.batchId === batch.id && sj.status === 'QUEUED'))
+      return reject(c, 'ALREADY_QUEUED', 'Batch already has a queued sorting job');
+
+    // Capacity check — queue if insufficient (equality completes, > queues)
+    const neededCapacity = batch.currentVolumeMilliM3;
+    if (yard.usedCapacityMilliM3 + neededCapacity > yard.totalCapacityMilliM3) {
+      const sj: SortJob = {
+        id: e.ids.next('sort_job', 'SORTJOB'),
+        yardId: yard.id,
+        batchId: batch.id,
+        status: 'QUEUED',
+        createdTimestamp: e.clock.currentGameTime,
+        sourceEventIds: [],
+      };
+      emit(e, c, 'SortJobQueued', { job: sj });
+      return { accepted: true as const, commandId: c.commandId, emittedEventIds: [c.commandId] };
+    }
+
+    const conductType = String(p.conductType ?? 'ETHICAL');
+    return executeSort(e, c, batch, yard, nonLoss, lossVolume, conductType);
+  });
+
+  // ── Retry queued sort job ────────────────────────────────────────────
+  e.registerCommandHandler('RetrySortJob', c => {
+    const jobId = String(c.payload.jobId);
+    const job = e.operations.sortJob(jobId);
+    if (!job || job.status !== 'QUEUED')
+      return reject(c, 'INVALID_JOB', 'Queued sort job required');
+    const batch = e.inventory.batch(job.batchId);
+    const yard = e.operations.yard(job.yardId);
+    if (!batch || !yard) return reject(c, 'INVALID_REFERENCES', 'Batch or yard vanished');
+    if (batch.status === 'DEPLETED' || batch.status === 'SPLIT' || batch.status === 'MERGED' || batch.status === 'CANCELLED' || batch.status === 'CLOSED')
+      return reject(c, 'BATCH_CONSUMED', 'Parent batch no longer available');
+    if (!batch.recoveryVolumes || !batch.recoveryVolumes.length)
+      return reject(c, 'NO_RECOVERY_DATA', 'Recovery data vanished');
+    const nonLoss = batch.recoveryVolumes.filter(r => r.label !== 'LOSS');
+    const lossEntry = batch.recoveryVolumes.find(r => r.label === 'LOSS');
+    const childSum = nonLoss.reduce((n, r) => n + r.volumeMilliM3, 0);
+    const lossVolume = lossEntry ? lossEntry.volumeMilliM3 : 0;
+    if (childSum + lossVolume !== batch.currentVolumeMilliM3)
+      return reject(c, 'VOLUME_MISMATCH', 'Children plus loss must equal parent volume');
+
+    const neededCapacity = batch.currentVolumeMilliM3;
+    if (yard.usedCapacityMilliM3 + neededCapacity > yard.totalCapacityMilliM3)
+      return reject(c, 'CAPACITY_STILL_FULL', 'Yard capacity still insufficient');
+
+    return executeSort(e, c, batch, yard, nonLoss, lossVolume);
   });
 
   // ── Operating Cost Posting ──────────────────────────────────────────

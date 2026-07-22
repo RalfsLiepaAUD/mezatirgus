@@ -1,6 +1,6 @@
 {
-  "saveSchemaVersion": 7,
-  "coreVersion": "0.8.0",
+  "saveSchemaVersion": 13,
+  "coreVersion": "0.14.0",
   "configurationBundleVersion": "1.0.0",
   "configurationHash": "59e622fa0d5aa90f3e1b28e63269d386eb7333655a7067911106de181a9fd66b",
   "scenarioId": "scenario.first_full",
@@ -20,7 +20,7 @@
   "eventInsertionCounter": 9,
   "snapshotSequence": 1,
   "snapshot": {
-    "snapshotSchemaVersion": 7,
+    "snapshotSchemaVersion": 13,
     "snapshotSequence": 1,
     "createdGameTime": 0,
     "eventLogIndex": 3,
@@ -121,9 +121,58 @@
         "carriers": [],
         "quotes": [],
         "jobs": []
+      },
+      "auctions": {
+        "appliedEventIds": [],
+        "competitors": [],
+        "auctions": [],
+        "registrations": [],
+        "bids": [],
+        "results": []
+      },
+      "forests": {
+        "appliedEventIds": [],
+        "forests": [],
+        "rights": [],
+        "plans": [],
+        "jobs": [],
+        "obligations": []
+      },
+      "operations": {
+        "appliedEventIds": [],
+        "yards": [],
+        "trucks": [],
+        "drivers": [],
+        "employees": [],
+        "lanes": [],
+        "dispatchOrders": [],
+        "sortJobs": []
+      },
+      "contracts": {
+        "appliedEventIds": [],
+        "agreements": [],
+        "deliveries": []
+      },
+      "exports": {
+        "appliedEventIds": [],
+        "buyers": [],
+        "quotes": [],
+        "orders": []
+      },
+      "markets": {
+        "appliedEventIds": [],
+        "regime": {
+          "regime": "NORMAL",
+          "transitionedAtTimestamp": 0,
+          "durationDays": 0,
+          "sourceEventIds": []
+        },
+        "drivers": [],
+        "season": "SUMMER",
+        "observations": []
       }
     },
-    "snapshotChecksum": "c10c790e54af90964ddf3389d3a4489dae863a8e5f940816c59e49fbe26766e8"
+    "snapshotChecksum": "ec1882133f8f0e5319fa9a6830d677ffe7b73f3511ef4dbf576f982ed658c5e7"
   },
   "eventsAfterSnapshot": [
     {
@@ -268,6 +317,6 @@
     }
   ],
   "playerPreferences": {},
-  "authoritativeStateChecksum": "91529c9b278122f0cbcfcdd5337d9373f039997f55704085a339ff8298ba4967",
-  "saveChecksum": "aa84a3c068e60e4bac0a36b6824cd597198a90e1f61da0ee23804faeef87e2bf"
+  "authoritativeStateChecksum": "1aca75aedb29b1d3ca58a153d234cd51b60e39f3483aa1b333cc181ff92e09f9",
+  "saveChecksum": "286dd9ac69246fa2d59a899d47ee7d837d7597558ea397d328bc002cdf10bea1"
 }

@@ -34,7 +34,7 @@ function world() {
   go(e, 'Y', 'CreateYard', {
     companyId: 'COMPANY-000001', locationId: 'LOCATION-000001',
     displayName: 'Cēsis yard', totalCapacityMilliM3: 100_000,
-    storageCostMinorPerTickPerM3: 1, sortingCostMinorPerM3: 3_000,
+    storageCostMinorPerTickPerM3: 1, sortingCostMinorPerM3: 3_000, sortingCapable: true,
   });
   go(e, 'T', 'CreateTruck', {
     companyId: 'COMPANY-000001', locationId: 'LOCATION-000001',
@@ -426,7 +426,7 @@ describe('Step 11 — yard, truck, driver, employee, and recurring lane', () => 
     const e = world();
     // Create a fresh unallocated batch for sorting
     go(e, 'BATCH2', 'CreateInitialBatch', { lotId: 'LOT-000001', volumeMilliM3: 20_000, composition });
-    go(e, 'RV', 'SetBatchRecoveryVolumes', { batchId: 'BATCH-000002', volumes: [{ label: 'A', volumeMilliM3: 10000 }, { label: 'B', volumeMilliM3: 9900 }, { label: 'loss', volumeMilliM3: 100 }] });
+    go(e, 'RV', 'SetBatchRecoveryVolumes', { batchId: 'BATCH-000002', volumes: [{ label: 'A', volumeMilliM3: 10000 }, { label: 'B', volumeMilliM3: 9900 }, { label: 'LOSS', volumeMilliM3: 100 }] });
     go(e, 'SORT', 'SortBatchAtYard', {
       yardId: 'YARD-000001', batchId: 'BATCH-000002', conductType: 'ETHICAL',
     });
@@ -569,7 +569,7 @@ describe('Step 11 — yard, truck, driver, employee, and recurring lane', () => 
   it('yard sorting changes batch certainty to SORTED', () => {
     const e = world();
     go(e, 'B2', 'CreateInitialBatch', { lotId: 'LOT-000001', volumeMilliM3: 20_000, composition });
-    go(e, 'RV', 'SetBatchRecoveryVolumes', { batchId: 'BATCH-000002', volumes: [{ label: 'A', volumeMilliM3: 10000 }, { label: 'B', volumeMilliM3: 9900 }, { label: 'loss', volumeMilliM3: 100 }] });
+    go(e, 'RV', 'SetBatchRecoveryVolumes', { batchId: 'BATCH-000002', volumes: [{ label: 'A', volumeMilliM3: 10000 }, { label: 'B', volumeMilliM3: 9900 }, { label: 'LOSS', volumeMilliM3: 100 }] });
     go(e, 'SORT', 'SortBatchAtYard', {
       yardId: 'YARD-000001', batchId: 'BATCH-000002', conductType: 'ETHICAL',
     });
@@ -579,7 +579,7 @@ describe('Step 11 — yard, truck, driver, employee, and recurring lane', () => 
   it('yard sorting cost appears exactly once in finance and cost layers', () => {
     const e = world();
     go(e, 'B2', 'CreateInitialBatch', { lotId: 'LOT-000001', volumeMilliM3: 20_000, composition });
-    go(e, 'RV', 'SetBatchRecoveryVolumes', { batchId: 'BATCH-000002', volumes: [{ label: 'A', volumeMilliM3: 10000 }, { label: 'B', volumeMilliM3: 9900 }, { label: 'loss', volumeMilliM3: 100 }] });
+    go(e, 'RV', 'SetBatchRecoveryVolumes', { batchId: 'BATCH-000002', volumes: [{ label: 'A', volumeMilliM3: 10000 }, { label: 'B', volumeMilliM3: 9900 }, { label: 'LOSS', volumeMilliM3: 100 }] });
     const batch = e.inventory.batch('BATCH-000002')!;
     const yard = e.operations.yard('YARD-000001')!;
     const expectedCost = Number(BigInt(batch.currentVolumeMilliM3) * BigInt(yard.sortingCostMinorPerM3) / 1000n);
@@ -603,7 +603,7 @@ describe('Step 11 — yard, truck, driver, employee, and recurring lane', () => 
   it('repeated sort command is rejected (no duplicate cost)', () => {
     const e = world();
     go(e, 'B2', 'CreateInitialBatch', { lotId: 'LOT-000001', volumeMilliM3: 20_000, composition });
-    go(e, 'RV', 'SetBatchRecoveryVolumes', { batchId: 'BATCH-000002', volumes: [{ label: 'A', volumeMilliM3: 10000 }, { label: 'B', volumeMilliM3: 9900 }, { label: 'loss', volumeMilliM3: 100 }] });
+    go(e, 'RV', 'SetBatchRecoveryVolumes', { batchId: 'BATCH-000002', volumes: [{ label: 'A', volumeMilliM3: 10000 }, { label: 'B', volumeMilliM3: 9900 }, { label: 'LOSS', volumeMilliM3: 100 }] });
     go(e, 'SORT', 'SortBatchAtYard', {
       yardId: 'YARD-000001', batchId: 'BATCH-000002', conductType: 'ETHICAL',
     });
@@ -634,8 +634,8 @@ describe('Step 11 — yard, truck, driver, employee, and recurring lane', () => 
     go(e, 'DONE', 'CompleteDispatchOrder', { orderId: 'DISPATCH-000001' });
     go(loaded, 'B2', 'CreateInitialBatch', { lotId: 'LOT-000001', volumeMilliM3: 20_000, composition });
     go(e, 'B2', 'CreateInitialBatch', { lotId: 'LOT-000001', volumeMilliM3: 20_000, composition });
-    go(loaded, 'RV', 'SetBatchRecoveryVolumes', { batchId: 'BATCH-000002', volumes: [{ label: 'A', volumeMilliM3: 10000 }, { label: 'B', volumeMilliM3: 9900 }, { label: 'loss', volumeMilliM3: 100 }] });
-    go(e, 'RV', 'SetBatchRecoveryVolumes', { batchId: 'BATCH-000002', volumes: [{ label: 'A', volumeMilliM3: 10000 }, { label: 'B', volumeMilliM3: 9900 }, { label: 'loss', volumeMilliM3: 100 }] });
+    go(loaded, 'RV', 'SetBatchRecoveryVolumes', { batchId: 'BATCH-000002', volumes: [{ label: 'A', volumeMilliM3: 10000 }, { label: 'B', volumeMilliM3: 9900 }, { label: 'LOSS', volumeMilliM3: 100 }] });
+    go(e, 'RV', 'SetBatchRecoveryVolumes', { batchId: 'BATCH-000002', volumes: [{ label: 'A', volumeMilliM3: 10000 }, { label: 'B', volumeMilliM3: 9900 }, { label: 'LOSS', volumeMilliM3: 100 }] });
     go(loaded, 'SORT', 'SortBatchAtYard', {
       yardId: 'YARD-000001', batchId: 'BATCH-000002', conductType: 'ETHICAL',
     });

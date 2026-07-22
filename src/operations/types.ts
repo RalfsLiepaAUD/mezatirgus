@@ -7,6 +7,7 @@ export interface Yard {
   usedCapacityMilliM3: number;
   storageCostMinorPerTickPerM3: number;
   sortingCostMinorPerM3: number;
+  sortingCapable: boolean;
   status: 'ACTIVE' | 'FULL' | 'INACTIVE';
   createdTimestamp: number;
   sourceEventIds: string[];

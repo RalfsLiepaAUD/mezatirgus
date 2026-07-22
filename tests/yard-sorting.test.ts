@@ -26,7 +26,7 @@ function world() {
   go(e, 'Y', 'CreateYard', {
     companyId: 'COMPANY-000001', locationId: 'LOCATION-000001',
     displayName: 'Test yard', totalCapacityMilliM3: 100_000,
-    storageCostMinorPerTickPerM3: 1, sortingCostMinorPerM3: 3_000,
+    storageCostMinorPerTickPerM3: 1, sortingCostMinorPerM3: 3_000, sortingCapable: true,
   });
   go(e, 'DL', 'CreateDeal', {
     companyId: 'COMPANY-000001', counterpartyId: 'S',
@@ -44,7 +44,7 @@ function world() {
     { label: 'A', volumeMilliM3: 8000 },
     { label: 'B', volumeMilliM3: 7000 },
     { label: 'C', volumeMilliM3: 4000 },
-    { label: 'loss', volumeMilliM3: 1000 },
+    { label: 'LOSS', volumeMilliM3: 1000 },
   ]});
   return e;
 }
@@ -60,7 +60,7 @@ describe('Phase 2 Milestone 2 — Yard Sorting M1', () => {
     go(e, 'DA', 'ActivateDeal', { dealId: 'DEAL-000001' });
     go(e, 'LOT', 'CreateLot', { dealId: 'DEAL-000001', ownerCompanyId: 'COMPANY-000001', custodyActorId: 'C', locationId: 'LOCATION-000001', originalVolumeMilliM3: 10_000, composition: comp, freshness: 'FRESH', certainty: 'ESTIMATED' });
     go(e, 'B', 'CreateInitialBatch', { lotId: 'LOT-000001', volumeMilliM3: 10_000, composition: comp });
-    go(e, 'RV', 'SetBatchRecoveryVolumes', { batchId: 'BATCH-000001', volumes: [{ label: 'A', volumeMilliM3: 9000 }, { label: 'loss', volumeMilliM3: 1000 }] });
+    go(e, 'RV', 'SetBatchRecoveryVolumes', { batchId: 'BATCH-000001', volumes: [{ label: 'A', volumeMilliM3: 9000 }, { label: 'LOSS', volumeMilliM3: 1000 }] });
     // No yard created — lacks sorting capability because no yard exists
     const before = e.auditFingerprint();
     const r = go(e, 'S', 'SortBatchAtYard', { yardId: 'YARD-999999', batchId: 'BATCH-000001' });
@@ -73,12 +73,12 @@ describe('Phase 2 Milestone 2 — Yard Sorting M1', () => {
     go(e, 'C', 'CreateCompany', { displayName: 'T', reputationBasisPoints: 5000 });
     go(e, 'CASH', 'CreateOpeningBalance', { companyId: 'COMPANY-000001', amountMinor: 1_000_000 });
     go(e, 'L1', 'CreateLocation', { displayName: 'L', countryCode: 'LV', regionCode: 'RIGA', roles: ['YARD'] });
-    go(e, 'Y', 'CreateYard', { companyId: 'COMPANY-000001', locationId: 'LOCATION-000001', displayName: 'Y', totalCapacityMilliM3: 100_000, storageCostMinorPerTickPerM3: 1, sortingCostMinorPerM3: 0 });
+    go(e, 'Y', 'CreateYard', { companyId: 'COMPANY-000001', locationId: 'LOCATION-000001', displayName: 'Y', totalCapacityMilliM3: 100_000, storageCostMinorPerTickPerM3: 1, sortingCostMinorPerM3: 0, sortingCapable: false });
     go(e, 'DL', 'CreateDeal', { companyId: 'COMPANY-000001', counterpartyId: 'S', expectedVolumeMilliM3: 10_000, financeSourceIds: [], currency: 'EUR', description: 'D' });
     go(e, 'DA', 'ActivateDeal', { dealId: 'DEAL-000001' });
     go(e, 'LOT', 'CreateLot', { dealId: 'DEAL-000001', ownerCompanyId: 'COMPANY-000001', custodyActorId: 'C', locationId: 'LOCATION-000001', originalVolumeMilliM3: 10_000, composition: comp, freshness: 'FRESH', certainty: 'ESTIMATED' });
     go(e, 'B', 'CreateInitialBatch', { lotId: 'LOT-000001', volumeMilliM3: 10_000, composition: comp });
-    go(e, 'RV', 'SetBatchRecoveryVolumes', { batchId: 'BATCH-000001', volumes: [{ label: 'A', volumeMilliM3: 9000 }, { label: 'loss', volumeMilliM3: 1000 }] });
+    go(e, 'RV', 'SetBatchRecoveryVolumes', { batchId: 'BATCH-000001', volumes: [{ label: 'A', volumeMilliM3: 9000 }, { label: 'LOSS', volumeMilliM3: 1000 }] });
     const before = e.auditFingerprint();
     const r = go(e, 'S', 'SortBatchAtYard', { yardId: 'YARD-000001', batchId: 'BATCH-000001' });
     expect(r.accepted).toBe(false);
@@ -91,12 +91,12 @@ describe('Phase 2 Milestone 2 — Yard Sorting M1', () => {
     go(e, 'CASH', 'CreateOpeningBalance', { companyId: 'COMPANY-000001', amountMinor: 1_000_000 });
     go(e, 'L1', 'CreateLocation', { displayName: 'Yard', countryCode: 'LV', regionCode: 'RIGA', roles: ['YARD'] });
     go(e, 'L2', 'CreateLocation', { displayName: 'Forest', countryCode: 'LV', regionCode: 'VIDZEME', roles: ['ROADSIDE'] });
-    go(e, 'Y', 'CreateYard', { companyId: 'COMPANY-000001', locationId: 'LOCATION-000001', displayName: 'Y', totalCapacityMilliM3: 100_000, storageCostMinorPerTickPerM3: 1, sortingCostMinorPerM3: 3_000 });
+    go(e, 'Y', 'CreateYard', { companyId: 'COMPANY-000001', locationId: 'LOCATION-000001', displayName: 'Y', totalCapacityMilliM3: 100_000, storageCostMinorPerTickPerM3: 1, sortingCostMinorPerM3: 3_000, sortingCapable: true });
     go(e, 'DL', 'CreateDeal', { companyId: 'COMPANY-000001', counterpartyId: 'S', expectedVolumeMilliM3: 10_000, financeSourceIds: [], currency: 'EUR', description: 'D' });
     go(e, 'DA', 'ActivateDeal', { dealId: 'DEAL-000001' });
     go(e, 'LOT', 'CreateLot', { dealId: 'DEAL-000001', ownerCompanyId: 'COMPANY-000001', custodyActorId: 'C', locationId: 'LOCATION-000002', originalVolumeMilliM3: 10_000, composition: comp, freshness: 'FRESH', certainty: 'ESTIMATED' });
     go(e, 'B', 'CreateInitialBatch', { lotId: 'LOT-000001', volumeMilliM3: 10_000, composition: comp });
-    go(e, 'RV', 'SetBatchRecoveryVolumes', { batchId: 'BATCH-000001', volumes: [{ label: 'A', volumeMilliM3: 9000 }, { label: 'loss', volumeMilliM3: 1000 }] });
+    go(e, 'RV', 'SetBatchRecoveryVolumes', { batchId: 'BATCH-000001', volumes: [{ label: 'A', volumeMilliM3: 9000 }, { label: 'LOSS', volumeMilliM3: 1000 }] });
     const before = e.auditFingerprint();
     const r = go(e, 'S', 'SortBatchAtYard', { yardId: 'YARD-000001', batchId: 'BATCH-000001' });
     expect(r.accepted).toBe(false);
@@ -233,12 +233,12 @@ describe('Phase 2 Milestone 2 — Yard Sorting M1', () => {
     go(e, 'C', 'CreateCompany', { displayName: 'T', reputationBasisPoints: 5000 });
     go(e, 'CASH', 'CreateOpeningBalance', { companyId: 'COMPANY-000001', amountMinor: 10_000_000 });
     go(e, 'L1', 'CreateLocation', { displayName: 'L', countryCode: 'LV', regionCode: 'RIGA', roles: ['YARD'] });
-    go(e, 'Y', 'CreateYard', { companyId: 'COMPANY-000001', locationId: 'LOCATION-000001', displayName: 'Y', totalCapacityMilliM3: 5_000, storageCostMinorPerTickPerM3: 1, sortingCostMinorPerM3: 3_000 });
+    go(e, 'Y', 'CreateYard', { companyId: 'COMPANY-000001', locationId: 'LOCATION-000001', displayName: 'Y', totalCapacityMilliM3: 5_000, storageCostMinorPerTickPerM3: 1, sortingCostMinorPerM3: 3_000, sortingCapable: true });
     go(e, 'DL', 'CreateDeal', { companyId: 'COMPANY-000001', counterpartyId: 'S', expectedVolumeMilliM3: 100_000, financeSourceIds: [], currency: 'EUR', description: 'D' });
     go(e, 'DA', 'ActivateDeal', { dealId: 'DEAL-000001' });
     go(e, 'LOT', 'CreateLot', { dealId: 'DEAL-000001', ownerCompanyId: 'COMPANY-000001', custodyActorId: 'C', locationId: 'LOCATION-000001', originalVolumeMilliM3: 100_000, composition: comp, freshness: 'FRESH', certainty: 'ESTIMATED' });
     go(e, 'B', 'CreateInitialBatch', { lotId: 'LOT-000001', volumeMilliM3: 20_000, composition: comp });
-    go(e, 'RV', 'SetBatchRecoveryVolumes', { batchId: 'BATCH-000001', volumes: [{ label: 'A', volumeMilliM3: 10000 }, { label: 'B', volumeMilliM3: 9900 }, { label: 'loss', volumeMilliM3: 100 }] });
+    go(e, 'RV', 'SetBatchRecoveryVolumes', { batchId: 'BATCH-000001', volumes: [{ label: 'A', volumeMilliM3: 10000 }, { label: 'B', volumeMilliM3: 9900 }, { label: 'LOSS', volumeMilliM3: 100 }] });
     go(e, 'S', 'SortBatchAtYard', { yardId: 'YARD-000001', batchId: 'BATCH-000001', conductType: 'ETHICAL' });
     // Capacity exceeded → queued
     expect(e.operations.snapshot().sortJobs.some(sj => sj.batchId === 'BATCH-000001' && sj.status === 'QUEUED')).toBe(true);
@@ -251,12 +251,12 @@ describe('Phase 2 Milestone 2 — Yard Sorting M1', () => {
     go(e, 'C', 'CreateCompany', { displayName: 'T', reputationBasisPoints: 5000 });
     go(e, 'CASH', 'CreateOpeningBalance', { companyId: 'COMPANY-000001', amountMinor: 10_000_000 });
     go(e, 'L1', 'CreateLocation', { displayName: 'L', countryCode: 'LV', regionCode: 'RIGA', roles: ['YARD'] });
-    go(e, 'Y', 'CreateYard', { companyId: 'COMPANY-000001', locationId: 'LOCATION-000001', displayName: 'Y', totalCapacityMilliM3: 5_000, storageCostMinorPerTickPerM3: 1, sortingCostMinorPerM3: 3_000 });
+    go(e, 'Y', 'CreateYard', { companyId: 'COMPANY-000001', locationId: 'LOCATION-000001', displayName: 'Y', totalCapacityMilliM3: 5_000, storageCostMinorPerTickPerM3: 1, sortingCostMinorPerM3: 3_000, sortingCapable: true });
     go(e, 'DL', 'CreateDeal', { companyId: 'COMPANY-000001', counterpartyId: 'S', expectedVolumeMilliM3: 100_000, financeSourceIds: [], currency: 'EUR', description: 'D' });
     go(e, 'DA', 'ActivateDeal', { dealId: 'DEAL-000001' });
     go(e, 'LOT', 'CreateLot', { dealId: 'DEAL-000001', ownerCompanyId: 'COMPANY-000001', custodyActorId: 'C', locationId: 'LOCATION-000001', originalVolumeMilliM3: 100_000, composition: comp, freshness: 'FRESH', certainty: 'ESTIMATED' });
     go(e, 'B', 'CreateInitialBatch', { lotId: 'LOT-000001', volumeMilliM3: 20_000, composition: comp });
-    go(e, 'RV', 'SetBatchRecoveryVolumes', { batchId: 'BATCH-000001', volumes: [{ label: 'A', volumeMilliM3: 10000 }, { label: 'B', volumeMilliM3: 9900 }, { label: 'loss', volumeMilliM3: 100 }] });
+    go(e, 'RV', 'SetBatchRecoveryVolumes', { batchId: 'BATCH-000001', volumes: [{ label: 'A', volumeMilliM3: 10000 }, { label: 'B', volumeMilliM3: 9900 }, { label: 'LOSS', volumeMilliM3: 100 }] });
     go(e, 'S', 'SortBatchAtYard', { yardId: 'YARD-000001', batchId: 'BATCH-000001', conductType: 'ETHICAL' });
     const snap = createSnapshot(e);
     const save = createSave(e, snap);
@@ -282,5 +282,204 @@ describe('Phase 2 Milestone 2 — Yard Sorting M1', () => {
     go(b, 'S', 'SortBatchAtYard', { yardId: 'YARD-000001', batchId: 'BATCH-000001', conductType: 'ETHICAL' });
     expect(a.stateChecksum()).toBe(b.stateChecksum());
     expect(a.inventory.snapshot()).toEqual(b.inventory.snapshot());
+  });
+
+  // ── Additional M1 audit coverage ─────────────────────────────────
+
+  it('child recovery bands remain distinct (B2)', () => {
+    const e = world();
+    go(e, 'S', 'SortBatchAtYard', { yardId: 'YARD-000001', batchId: 'BATCH-000001', conductType: 'ETHICAL' });
+    const c1 = e.inventory.batch('BATCH-000002')!;
+    const c2 = e.inventory.batch('BATCH-000003')!;
+    const c3 = e.inventory.batch('BATCH-000004')!;
+    expect(c1.sortingLabel).toBe('A');
+    expect(c2.sortingLabel).toBe('B');
+    expect(c3.sortingLabel).toBe('C');
+    // Composition unchanged (true quality not upgraded)
+    expect(c1.composition.species[0]!.id).toBe('species.birch');
+    expect(c2.composition.species[0]!.id).toBe('species.birch');
+  });
+
+  it('capable yard with cost succeeds / incapable with cost rejects (B3)', () => {
+    const e = mk();
+    go(e, 'C', 'CreateCompany', { displayName: 'T', reputationBasisPoints: 5000 });
+    go(e, 'CASH', 'CreateOpeningBalance', { companyId: 'COMPANY-000001', amountMinor: 1_000_000 });
+    go(e, 'L1', 'CreateLocation', { displayName: 'L', countryCode: 'LV', regionCode: 'RIGA', roles: ['YARD'] });
+    // Incapable yard with positive cost → rejects
+    go(e, 'Y1', 'CreateYard', { companyId: 'COMPANY-000001', locationId: 'LOCATION-000001', displayName: 'Y', totalCapacityMilliM3: 100_000, storageCostMinorPerTickPerM3: 1, sortingCostMinorPerM3: 3_000, sortingCapable: false });
+    go(e, 'L2', 'CreateLocation', { displayName: 'L2', countryCode: 'LV', regionCode: 'RIGA', roles: ['YARD'] });
+    // Capable yard with positive cost → succeeds
+    go(e, 'Y2', 'CreateYard', { companyId: 'COMPANY-000001', locationId: 'LOCATION-000002', displayName: 'Y2', totalCapacityMilliM3: 100_000, storageCostMinorPerTickPerM3: 1, sortingCostMinorPerM3: 3_000, sortingCapable: true });
+    go(e, 'DEAL', 'CreateDeal', { companyId: 'COMPANY-000001', counterpartyId: 'S', expectedVolumeMilliM3: 10_000, financeSourceIds: [], currency: 'EUR', description: 'D' });
+    go(e, 'DA', 'ActivateDeal', { dealId: 'DEAL-000001' });
+    go(e, 'LOT', 'CreateLot', { dealId: 'DEAL-000001', ownerCompanyId: 'COMPANY-000001', custodyActorId: 'C', locationId: 'LOCATION-000002', originalVolumeMilliM3: 10_000, composition: comp, freshness: 'FRESH', certainty: 'ESTIMATED' });
+    go(e, 'B', 'CreateInitialBatch', { lotId: 'LOT-000001', volumeMilliM3: 10_000, composition: comp });
+    go(e, 'RV', 'SetBatchRecoveryVolumes', { batchId: 'BATCH-000001', volumes: [{ label: 'A', volumeMilliM3: 9000 }, { label: 'LOSS', volumeMilliM3: 1000 }] });
+    // Incapable yard rejects
+    const r1 = go(e, 'S1', 'SortBatchAtYard', { yardId: 'YARD-000001', batchId: 'BATCH-000001' });
+    expect(r1.accepted).toBe(false);
+    // Capable yard succeeds
+    const r2 = go(e, 'S2', 'SortBatchAtYard', { yardId: 'YARD-000002', batchId: 'BATCH-000001' });
+    expect(r2.accepted).toBe(true);
+    expect(e.inventory.batch('BATCH-000002')).toBeDefined();
+  });
+
+  it('duplicate queue request rejects (B4)', () => {
+    const e = mk();
+    go(e, 'C', 'CreateCompany', { displayName: 'T', reputationBasisPoints: 5000 });
+    go(e, 'CASH', 'CreateOpeningBalance', { companyId: 'COMPANY-000001', amountMinor: 10_000_000 });
+    go(e, 'L1', 'CreateLocation', { displayName: 'L', countryCode: 'LV', regionCode: 'RIGA', roles: ['YARD'] });
+    go(e, 'Y', 'CreateYard', { companyId: 'COMPANY-000001', locationId: 'LOCATION-000001', displayName: 'Y', totalCapacityMilliM3: 2_000, storageCostMinorPerTickPerM3: 1, sortingCostMinorPerM3: 3_000, sortingCapable: true });
+    go(e, 'DL', 'CreateDeal', { companyId: 'COMPANY-000001', counterpartyId: 'S', expectedVolumeMilliM3: 100_000, financeSourceIds: [], currency: 'EUR', description: 'D' });
+    go(e, 'DA', 'ActivateDeal', { dealId: 'DEAL-000001' });
+    go(e, 'LOT', 'CreateLot', { dealId: 'DEAL-000001', ownerCompanyId: 'COMPANY-000001', custodyActorId: 'C', locationId: 'LOCATION-000001', originalVolumeMilliM3: 100_000, composition: comp, freshness: 'FRESH', certainty: 'ESTIMATED' });
+    go(e, 'B', 'CreateInitialBatch', { lotId: 'LOT-000001', volumeMilliM3: 20_000, composition: comp });
+    go(e, 'RV', 'SetBatchRecoveryVolumes', { batchId: 'BATCH-000001', volumes: [{ label: 'A', volumeMilliM3: 10000 }, { label: 'B', volumeMilliM3: 9900 }, { label: 'LOSS', volumeMilliM3: 100 }] });
+    go(e, 'S1', 'SortBatchAtYard', { yardId: 'YARD-000001', batchId: 'BATCH-000001' });
+    const before = e.auditFingerprint();
+    const r = go(e, 'S2', 'SortBatchAtYard', { yardId: 'YARD-000001', batchId: 'BATCH-000001' });
+    expect(r.accepted).toBe(false);
+    expect(e.auditFingerprint()).toBe(before);
+  });
+
+  it('recovery mutation after queueing rejects (B5)', () => {
+    const e = mk();
+    go(e, 'C', 'CreateCompany', { displayName: 'T', reputationBasisPoints: 5000 });
+    go(e, 'CASH', 'CreateOpeningBalance', { companyId: 'COMPANY-000001', amountMinor: 10_000_000 });
+    go(e, 'L1', 'CreateLocation', { displayName: 'L', countryCode: 'LV', regionCode: 'RIGA', roles: ['YARD'] });
+    go(e, 'Y', 'CreateYard', { companyId: 'COMPANY-000001', locationId: 'LOCATION-000001', displayName: 'Y', totalCapacityMilliM3: 2_000, storageCostMinorPerTickPerM3: 1, sortingCostMinorPerM3: 3_000, sortingCapable: true });
+    go(e, 'DL', 'CreateDeal', { companyId: 'COMPANY-000001', counterpartyId: 'S', expectedVolumeMilliM3: 100_000, financeSourceIds: [], currency: 'EUR', description: 'D' });
+    go(e, 'DA', 'ActivateDeal', { dealId: 'DEAL-000001' });
+    go(e, 'LOT', 'CreateLot', { dealId: 'DEAL-000001', ownerCompanyId: 'COMPANY-000001', custodyActorId: 'C', locationId: 'LOCATION-000001', originalVolumeMilliM3: 100_000, composition: comp, freshness: 'FRESH', certainty: 'ESTIMATED' });
+    go(e, 'B', 'CreateInitialBatch', { lotId: 'LOT-000001', volumeMilliM3: 20_000, composition: comp });
+    go(e, 'RV', 'SetBatchRecoveryVolumes', { batchId: 'BATCH-000001', volumes: [{ label: 'A', volumeMilliM3: 10000 }, { label: 'B', volumeMilliM3: 9900 }, { label: 'LOSS', volumeMilliM3: 100 }] });
+    go(e, 'S', 'SortBatchAtYard', { yardId: 'YARD-000001', batchId: 'BATCH-000001' });
+    const before = e.auditFingerprint();
+    const r = go(e, 'RV2', 'SetBatchRecoveryVolumes', { batchId: 'BATCH-000001', volumes: [{ label: 'A', volumeMilliM3: 19000 }, { label: 'LOSS', volumeMilliM3: 1000 }] });
+    expect(r.accepted).toBe(false);
+    expect(e.auditFingerprint()).toBe(before);
+  });
+
+  it('recovery mutation after sorting rejects (B5)', () => {
+    const e = world();
+    go(e, 'S', 'SortBatchAtYard', { yardId: 'YARD-000001', batchId: 'BATCH-000001', conductType: 'ETHICAL' });
+    const before = e.auditFingerprint();
+    const r = go(e, 'RV', 'SetBatchRecoveryVolumes', { batchId: 'BATCH-000001', volumes: [{ label: 'A', volumeMilliM3: 19000 }, { label: 'LOSS', volumeMilliM3: 1000 }] });
+    expect(r.accepted).toBe(false);
+    expect(e.auditFingerprint()).toBe(before);
+  });
+
+  it('duplicate recovery bands reject (B5)', () => {
+    const e = world();
+    const before = e.auditFingerprint();
+    const r = go(e, 'RV2', 'SetBatchRecoveryVolumes', { batchId: 'BATCH-000001', volumes: [{ label: 'A', volumeMilliM3: 8000 }, { label: 'A', volumeMilliM3: 2000 }, { label: 'LOSS', volumeMilliM3: 10000 }] });
+    expect(r.accepted).toBe(false);
+    expect(e.auditFingerprint()).toBe(before);
+  });
+
+  it('capacity exactly equal to limit completes (not queued)', () => {
+    const e = mk();
+    go(e, 'C', 'CreateCompany', { displayName: 'T', reputationBasisPoints: 5000 });
+    go(e, 'CASH', 'CreateOpeningBalance', { companyId: 'COMPANY-000001', amountMinor: 10_000_000 });
+    go(e, 'L1', 'CreateLocation', { displayName: 'L', countryCode: 'LV', regionCode: 'RIGA', roles: ['YARD'] });
+    go(e, 'Y', 'CreateYard', { companyId: 'COMPANY-000001', locationId: 'LOCATION-000001', displayName: 'Y', totalCapacityMilliM3: 20_000, storageCostMinorPerTickPerM3: 1, sortingCostMinorPerM3: 3_000, sortingCapable: true });
+    go(e, 'DL', 'CreateDeal', { companyId: 'COMPANY-000001', counterpartyId: 'S', expectedVolumeMilliM3: 100_000, financeSourceIds: [], currency: 'EUR', description: 'D' });
+    go(e, 'DA', 'ActivateDeal', { dealId: 'DEAL-000001' });
+    go(e, 'LOT', 'CreateLot', { dealId: 'DEAL-000001', ownerCompanyId: 'COMPANY-000001', custodyActorId: 'C', locationId: 'LOCATION-000001', originalVolumeMilliM3: 100_000, composition: comp, freshness: 'FRESH', certainty: 'ESTIMATED' });
+    go(e, 'B', 'CreateInitialBatch', { lotId: 'LOT-000001', volumeMilliM3: 20_000, composition: comp });
+    go(e, 'RV', 'SetBatchRecoveryVolumes', { batchId: 'BATCH-000001', volumes: [{ label: 'A', volumeMilliM3: 10000 }, { label: 'B', volumeMilliM3: 9900 }, { label: 'LOSS', volumeMilliM3: 100 }] });
+    go(e, 'S', 'SortBatchAtYard', { yardId: 'YARD-000001', batchId: 'BATCH-000001' });
+    // Completes (capacity 20k = batch 20k)
+    expect(e.inventory.batch('BATCH-000002')).toBeDefined();
+    expect(e.operations.snapshot().sortJobs.length).toBe(0);
+  });
+
+  // ── Sorting with zero-cost capable yard ──────────────────────────
+  it('zero-cost capable yard sorts with no payables', () => {
+    const e = mk();
+    go(e, 'C', 'CreateCompany', { displayName: 'T', reputationBasisPoints: 5000 });
+    go(e, 'CASH', 'CreateOpeningBalance', { companyId: 'COMPANY-000001', amountMinor: 10_000_000 });
+    go(e, 'L1', 'CreateLocation', { displayName: 'Yard', countryCode: 'LV', regionCode: 'RIGA', roles: ['YARD'] });
+    go(e, 'Y', 'CreateYard', { companyId: 'COMPANY-000001', locationId: 'LOCATION-000001', displayName: 'Y', totalCapacityMilliM3: 100_000, storageCostMinorPerTickPerM3: 1, sortingCostMinorPerM3: 0, sortingCapable: true });
+    go(e, 'F', 'CreateLocation', { displayName: 'Forest', countryCode: 'LV', regionCode: 'VIDZEME', roles: ['FOREST'] });
+    go(e, 'DL', 'CreateDeal', { companyId: 'COMPANY-000001', counterpartyId: 'S', expectedVolumeMilliM3: 10_000, financeSourceIds: [], currency: 'EUR', description: 'D' });
+    go(e, 'DA', 'ActivateDeal', { dealId: 'DEAL-000001' });
+    go(e, 'LOT', 'CreateLot', { dealId: 'DEAL-000001', ownerCompanyId: 'COMPANY-000001', custodyActorId: 'C', locationId: 'LOCATION-000001', originalVolumeMilliM3: 10_000, composition: comp, freshness: 'FRESH', certainty: 'ESTIMATED' });
+    go(e, 'B', 'CreateInitialBatch', { lotId: 'LOT-000001', volumeMilliM3: 10_000, composition: comp });
+    go(e, 'RV', 'SetBatchRecoveryVolumes', { batchId: 'BATCH-000001', volumes: [{ label: 'A', volumeMilliM3: 9000 }, { label: 'LOSS', volumeMilliM3: 1000 }] });
+    const r = go(e, 'S', 'SortBatchAtYard', { yardId: 'YARD-000001', batchId: 'BATCH-000001' });
+    const txBefore = e.finance.snapshot().transactions.length;
+    expect(r.accepted).toBe(true);
+    expect(e.inventory.batch('BATCH-000001')!.status).toBe('DEPLETED');
+    expect(e.inventory.batch('BATCH-000002')).toBeDefined();
+    expect(e.finance.snapshot().payables.length).toBe(0);
+    // No new transactions added by sorting (opening balance tx exists)
+    expect(e.finance.snapshot().transactions.length).toBe(txBefore);
+  });
+
+  // ── All-loss batch ───────────────────────────────────────────────
+  it('all-loss batch sorts with zero children and full loss', () => {
+    const e = mk();
+    go(e, 'C', 'CreateCompany', { displayName: 'T', reputationBasisPoints: 5000 });
+    go(e, 'CASH', 'CreateOpeningBalance', { companyId: 'COMPANY-000001', amountMinor: 10_000_000 });
+    go(e, 'L1', 'CreateLocation', { displayName: 'Yard', countryCode: 'LV', regionCode: 'RIGA', roles: ['YARD'] });
+    go(e, 'Y', 'CreateYard', { companyId: 'COMPANY-000001', locationId: 'LOCATION-000001', displayName: 'Y', totalCapacityMilliM3: 100_000, storageCostMinorPerTickPerM3: 1, sortingCostMinorPerM3: 3_000, sortingCapable: true });
+    go(e, 'DL', 'CreateDeal', { companyId: 'COMPANY-000001', counterpartyId: 'S', expectedVolumeMilliM3: 10_000, financeSourceIds: [], currency: 'EUR', description: 'D' });
+    go(e, 'DA', 'ActivateDeal', { dealId: 'DEAL-000001' });
+    go(e, 'LOT', 'CreateLot', { dealId: 'DEAL-000001', ownerCompanyId: 'COMPANY-000001', custodyActorId: 'C', locationId: 'LOCATION-000001', originalVolumeMilliM3: 10_000, composition: comp, freshness: 'FRESH', certainty: 'ESTIMATED' });
+    go(e, 'B', 'CreateInitialBatch', { lotId: 'LOT-000001', volumeMilliM3: 10_000, composition: comp });
+    go(e, 'RV', 'SetBatchRecoveryVolumes', { batchId: 'BATCH-000001', volumes: [{ label: 'LOSS', volumeMilliM3: 10000 }] });
+    go(e, 'S', 'SortBatchAtYard', { yardId: 'YARD-000001', batchId: 'BATCH-000001' });
+    expect(e.inventory.batch('BATCH-000001')!.status).toBe('DEPLETED');
+    expect(e.inventory.batch('BATCH-000002')).toBeUndefined();
+    expect(e.finance.snapshot().payables.length).toBe(1);
+  });
+
+  // ── RetrySortJob after completion rejects ────────────────────────
+  it('RetrySortJob after completion rejects with no duplicate effects', () => {
+    const e = mk();
+    go(e, 'C', 'CreateCompany', { displayName: 'T', reputationBasisPoints: 5000 });
+    go(e, 'CASH', 'CreateOpeningBalance', { companyId: 'COMPANY-000001', amountMinor: 10_000_000 });
+    go(e, 'L1', 'CreateLocation', { displayName: 'Yard', countryCode: 'LV', regionCode: 'RIGA', roles: ['YARD'] });
+    go(e, 'Y', 'CreateYard', { companyId: 'COMPANY-000001', locationId: 'LOCATION-000001', displayName: 'Y', totalCapacityMilliM3: 100_000, storageCostMinorPerTickPerM3: 1, sortingCostMinorPerM3: 3_000, sortingCapable: true });
+    go(e, 'DL', 'CreateDeal', { companyId: 'COMPANY-000001', counterpartyId: 'S', expectedVolumeMilliM3: 10_000, financeSourceIds: [], currency: 'EUR', description: 'D' });
+    go(e, 'DA', 'ActivateDeal', { dealId: 'DEAL-000001' });
+    go(e, 'LOT', 'CreateLot', { dealId: 'DEAL-000001', ownerCompanyId: 'COMPANY-000001', custodyActorId: 'C', locationId: 'LOCATION-000001', originalVolumeMilliM3: 10_000, composition: comp, freshness: 'FRESH', certainty: 'ESTIMATED' });
+    go(e, 'B', 'CreateInitialBatch', { lotId: 'LOT-000001', volumeMilliM3: 10_000, composition: comp });
+    go(e, 'RV', 'SetBatchRecoveryVolumes', { batchId: 'BATCH-000001', volumes: [{ label: 'A', volumeMilliM3: 9000 }, { label: 'LOSS', volumeMilliM3: 1000 }] });
+    go(e, 'CAP', 'AdjustYardCapacity', { yardId: 'YARD-000001', deltaMilliM3: 95_000 });
+    go(e, 'S', 'SortBatchAtYard', { yardId: 'YARD-000001', batchId: 'BATCH-000001' });
+    expect(e.operations.snapshot().sortJobs.some(sj => sj.batchId === 'BATCH-000001' && sj.status === 'QUEUED')).toBe(true);
+    go(e, 'CAP2', 'AdjustYardCapacity', { yardId: 'YARD-000001', deltaMilliM3: -95_000 });
+    const r1 = go(e, 'RT', 'RetrySortJob', { jobId: e.operations.sortJob(e.operations.snapshot().sortJobs[0]!.id)!.id });
+    expect(r1.accepted).toBe(true);
+    expect(e.inventory.batch('BATCH-000002')).toBeDefined();
+    const childCount = e.inventory.snapshot().batches.filter(b => b.parentBatchIds.includes('BATCH-000001')).length;
+    const payCount = e.finance.snapshot().payables.length;
+    const r2 = go(e, 'RT2', 'RetrySortJob', { jobId: e.operations.sortJob(e.operations.snapshot().sortJobs[0]!.id)!.id });
+    expect(r2.accepted).toBe(false);
+    expect(e.inventory.snapshot().batches.filter(b => b.parentBatchIds.includes('BATCH-000001')).length).toBe(childCount);
+    expect(e.finance.snapshot().payables.length).toBe(payCount);
+  });
+
+  // ── Arbitrary label rejects ──────────────────────────────────────
+  it('arbitrary recovery label rejects', () => {
+    const e = world();
+    const before = e.auditFingerprint();
+    const r = go(e, 'RV2', 'SetBatchRecoveryVolumes', { batchId: 'BATCH-000001', volumes: [{ label: 'INVALID', volumeMilliM3: 10000 }, { label: 'LOSS', volumeMilliM3: 10000 }] });
+    expect(r.accepted).toBe(false);
+    expect(e.auditFingerprint()).toBe(before);
+  });
+
+  // ── LOSS never becomes child ─────────────────────────────────────
+  it('LOSS never becomes child and sortingLabel never LOSS', () => {
+    const e = world();
+    go(e, 'S', 'SortBatchAtYard', { yardId: 'YARD-000001', batchId: 'BATCH-000001', conductType: 'ETHICAL' });
+    for (const b of e.inventory.snapshot().batches) {
+      if (b.parentBatchIds.includes('BATCH-000001')) {
+        expect(b.sortingLabel).not.toBe('LOSS' as any);
+      }
+    }
+    expect(e.inventory.snapshot().batches.length).toBe(4);
   });
 });

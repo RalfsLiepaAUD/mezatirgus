@@ -30,6 +30,8 @@ const EVENTS = new Set([
   'YardSortingRecorded',
   'YardSortingConductRecorded',
   'SortJobQueued',
+  'SortJobCompleted',
+  'SortJobFailed',
 ]);
 
 export const emptyOperations = (): OperationsSnapshot => ({
@@ -59,6 +61,7 @@ export class OperationsDomain {
   employee(id: string) { return this.state.employees.find(x => x.id === id); }
   lane(id: string) { return this.state.lanes.find(x => x.id === id); }
   dispatchOrder(id: string) { return this.state.dispatchOrders.find(x => x.id === id); }
+  sortJob(id: string) { return this.state.sortJobs.find(x => x.id === id); }
 
   activeDispatchForLoad(loadId: string) {
     return this.state.dispatchOrders.find(x =>
@@ -252,8 +255,12 @@ export class OperationsDomain {
       // Cost event — no state mutation needed, finance handles the posting
 
     } else if (event.eventType === 'YardSortingRecorded') {
-      // Sorting changes batch certainty — inventory handles the mutation
-      // This event links the operations action
+      // If there was a queued sort job for this batch, mark it as completed
+      const sj = this.state.sortJobs.find(x => x.batchId === p.batchId && x.status === 'QUEUED');
+      if (sj) {
+        sj.status = 'COMPLETED';
+        sj.sourceEventIds.push(event.eventId);
+      }
 
     } else if (event.eventType === 'YardSortingConductRecorded') {
       // Tracks player conduct choices at the yard
@@ -262,6 +269,20 @@ export class OperationsDomain {
       const sj = cp(p.job);
       sj.sourceEventIds = [event.eventId];
       this.state.sortJobs.push(sj);
+
+    } else if (event.eventType === 'SortJobCompleted') {
+      const sj = this.sortJob(p.jobId);
+      if (sj && sj.status === 'QUEUED') {
+        sj.status = 'COMPLETED';
+        sj.sourceEventIds.push(event.eventId);
+      }
+
+    } else if (event.eventType === 'SortJobFailed') {
+      const sj = this.sortJob(p.jobId);
+      if (sj && sj.status === 'QUEUED') {
+        sj.status = 'FAILED';
+        sj.sourceEventIds.push(event.eventId);
+      }
     }
 
     this.state.appliedEventIds.push(event.eventId);

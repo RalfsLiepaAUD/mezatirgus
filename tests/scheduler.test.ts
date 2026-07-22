@@ -63,7 +63,7 @@ function baseEngine(seed = 'scheduler-test'): SimulationEngine {
   go('YD', 'CreateYard', {
     companyId: 'COMPANY-000001', locationId: 'LOCATION-000001',
     displayName: 'Cēsis yard', totalCapacityMilliM3: 100_000,
-    storageCostMinorPerTickPerM3: 1, sortingCostMinorPerM3: 3_000,
+    storageCostMinorPerTickPerM3: 1, sortingCostMinorPerM3: 3_000, sortingCapable: true,
   });
   go('MKT', 'CreateMarket', {
     regime: 'NORMAL', season: 'SUMMER',
