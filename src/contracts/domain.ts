@@ -1,5 +1,6 @@
 import type { DomainEvent } from '../core/events.js';
 import type { ContractsSnapshot } from './types.js';
+import type { InvariantMode } from '../core/constants.js';
 
 const cp = <T>(x: T): T => structuredClone(x);
 
@@ -25,10 +26,13 @@ export const emptyContracts = (): ContractsSnapshot => ({
 
 export class ContractsDomain {
   private state: ContractsSnapshot;
+  private invariantMode: InvariantMode = 'FULL';
+  setInvariantMode(m: InvariantMode) { this.invariantMode = m; }
+  checkInvariants() { this.assertInvariants(); }
 
   constructor(initial?: ContractsSnapshot) {
     this.state = initial ? cp(initial) : emptyContracts();
-    this.assertInvariants();
+    if (this.invariantMode === 'FULL') this.assertInvariants();
   }
 
   snapshot(): ContractsSnapshot { return cp(this.state); }
@@ -168,7 +172,7 @@ export class ContractsDomain {
     }
 
     this.state.appliedEventIds.push(event.eventId);
-    this.assertInvariants();
+    if (this.invariantMode === 'FULL') this.assertInvariants();
   }
 
   private evaluateEndState(a: { status: string; committedVolumeMilliM3: number; acceptedVolumeMilliM3: number; toleranceBasisPoints: number; bonusMinor: number; penaltyMinor: number; sourceEventIds: string[]; id: string }, event: DomainEvent) {

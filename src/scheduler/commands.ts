@@ -32,7 +32,7 @@ export function publicOffers(e: SimulationEngine, companyId: string): PublicOffe
   return e.suppliers.snapshot().offers
     .filter(o => o.status === 'OPEN' || o.status === 'ACCEPTED')
     .map(o => {
-      const rel = e.suppliers.snapshot().relationships
+      const rel = e.suppliers.allRelationships()
         .find(x => x.supplierId === o.supplierId && x.companyId === companyId);
       const adjustment = rel ? Math.floor(rel.warmthBasisPoints / 1000) : 0;
       const effective = o.baseRateMinorPerM3 - adjustment;
@@ -75,14 +75,14 @@ export function registerSchedulerCommands(e: SimulationEngine) {
   // ── Supplier offer generation (every 12 ticks ≈ 2 per day per active supplier) ──
   e.registerCommandHandler('_AutoTickSupplierOffers', c => {
     const rng = e.rng.stream('autonomous');
-    for (const supplier of e.suppliers.snapshot().suppliers) {
+    for (const supplier of e.suppliers.allSuppliers()) {
       if (supplier.status !== 'ACTIVE') continue;
       const offeredVolume = 20_000 + rng.nextUint32() % 15_000; // 20-35k
       const rateBase = 4_000 + rng.nextUint32() % 3_000; // €40-70/m³
-      const contact = e.suppliers.snapshot().contacts.find(ct => ct.supplierId === supplier.id);
+      const contact = e.suppliers.allContacts().find(ct => ct.supplierId === supplier.id);
       if (!contact) continue;
       // No companyId — offer is shared for all eligible companies
-      const locId = e.routing.snapshot().locations.find(l => l.roles.includes('ROADSIDE'))?.id ?? e.routing.snapshot().locations[0]?.id;
+      const locId = e.routing.allLocations().find(l => l.roles.includes('ROADSIDE'))?.id ?? e.routing.allLocations()[0]?.id;
       if (!locId) continue;
       const offerResult = e.execute({
         commandId: '_auto_offer_' + supplier.id + '_' + e.clock.currentGameTime,
@@ -103,7 +103,7 @@ export function registerSchedulerCommands(e: SimulationEngine) {
       });
       // Validate documents by emitting events directly (commands don't exist yet)
       if (offerResult.accepted) {
-        const docSet = e.suppliers.snapshot().documentSets
+        const docSet = e.suppliers.allDocumentSets()
           .filter(d => d.status === 'PENDING')[0];
         if (docSet) {
           const docId = e.ids.next('supplier_document', 'DOCUMENT');
@@ -147,7 +147,7 @@ export function registerSchedulerCommands(e: SimulationEngine) {
 
     // Check competitor's cash position (free cash after commitments)
     const cash = e.finance.balanceByCode(competitorId, 'OPERATING_CASH');
-    const commitments = e.finance.snapshot().commitments
+    const commitments = e.finance.allCommitments()
       .filter(cmt => cmt.companyId === competitorId && cmt.status === 'ACTIVE')
       .reduce((s, cmt) => s + cmt.amountMinor, 0);
     const freeCash = cash - commitments;
@@ -184,7 +184,7 @@ export function registerSchedulerCommands(e: SimulationEngine) {
 
   // ── Financial pressure (every 24 ticks = 1 day) ──────────────────
   e.registerCommandHandler('_AutoTickFinancial', c => {
-    for (const emp of e.operations.snapshot().employees) {
+    for (const emp of e.operations.allEmployees()) {
       if (emp.status === 'UNAVAILABLE') continue;
       const dailyWage = Math.round(emp.wageMinorPerHour * 24);
       if (dailyWage <= 0) continue;
@@ -197,7 +197,7 @@ export function registerSchedulerCommands(e: SimulationEngine) {
         schemaVersion: 1,
       });
     }
-    for (const yard of e.operations.snapshot().yards) {
+    for (const yard of e.operations.allYards()) {
       if (yard.status === 'INACTIVE' || yard.usedCapacityMilliM3 <= 0) continue;
       const storageCost = Math.round(yard.storageCostMinorPerTickPerM3 * yard.usedCapacityMilliM3);
       if (storageCost > 0) {

@@ -1,5 +1,6 @@
 import type { DomainEvent } from '../core/events.js';
 import type { OperationsSnapshot } from './types.js';
+import type { InvariantMode } from '../core/constants.js';
 
 const cp = <T>(x: T): T => structuredClone(x);
 
@@ -47,6 +48,8 @@ export const emptyOperations = (): OperationsSnapshot => ({
 
 export class OperationsDomain {
   private state: OperationsSnapshot;
+  private invariantMode: InvariantMode = 'FULL';
+  setInvariantMode(m: InvariantMode) { this.invariantMode = m; }
 
   constructor(initial?: OperationsSnapshot) {
     this.state = initial ? cp(initial) : emptyOperations();
@@ -62,6 +65,10 @@ export class OperationsDomain {
   lane(id: string) { return this.state.lanes.find(x => x.id === id); }
   dispatchOrder(id: string) { return this.state.dispatchOrders.find(x => x.id === id); }
   sortJob(id: string) { return this.state.sortJobs.find(x => x.id === id); }
+  // Read-access (deep-cloned, mutation-safe)
+  allEmployees() { return this.state.employees.map(e => cp(e)); }
+  allYards() { return this.state.yards.map(y => cp(y)); }
+  checkInvariants() { this.assertInvariants(); }
 
   activeDispatchForLoad(loadId: string) {
     return this.state.dispatchOrders.find(x =>
@@ -286,7 +293,7 @@ export class OperationsDomain {
     }
 
     this.state.appliedEventIds.push(event.eventId);
-    this.assertInvariants();
+    if (this.invariantMode === 'FULL') this.assertInvariants();
   }
 
   assertInvariants() {

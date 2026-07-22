@@ -1,5 +1,6 @@
 import type { DomainEvent } from '../core/events.js';
 import type { ExportsSnapshot } from './types.js';
+import type { InvariantMode } from '../core/constants.js';
 
 const cp = <T>(x: T): T => structuredClone(x);
 
@@ -31,10 +32,13 @@ export const emptyExports = (): ExportsSnapshot => ({
 
 export class ExportsDomain {
   private state: ExportsSnapshot;
+  private invariantMode: InvariantMode = 'FULL';
+  setInvariantMode(m: InvariantMode) { this.invariantMode = m; }
+  checkInvariants() { this.assertInvariants(); }
 
   constructor(initial?: ExportsSnapshot) {
     this.state = initial ? cp(initial) : emptyExports();
-    this.assertInvariants();
+    if (this.invariantMode === 'FULL') this.assertInvariants();
   }
 
   snapshot(): ExportsSnapshot { return cp(this.state); }
@@ -165,7 +169,7 @@ export class ExportsDomain {
     }
 
     this.state.appliedEventIds.push(event.eventId);
-    this.assertInvariants();
+    if (this.invariantMode === 'FULL') this.assertInvariants();
   }
 
   assertInvariants() {

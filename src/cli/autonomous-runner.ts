@@ -86,6 +86,7 @@ function main() {
   const seed = args.seed ?? 'autonomous-default';
   const days = parseInt(args.days ?? '21', 10);
   const debug = args.debug === 'true';
+  const invariantMode = args['invariant-mode'] ?? 'BOUNDARY';
 
   if (!Number.isSafeInteger(days) || days < 1) {
     console.error(JSON.stringify({ error: 'days must be a positive integer', failed: true }));
@@ -98,6 +99,7 @@ function main() {
   });
 
   setup(e);
+  e.setInvariantMode(invariantMode as any);
   setupAutonomousScheduler(e);
 
   const ticks = days * 24;

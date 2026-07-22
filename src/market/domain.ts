@@ -1,5 +1,6 @@
 import type { DomainEvent } from '../core/events.js';
 import type { MarketObservation, MarketDriver, MarketRegimeState, MarketDirection, MarketRegime, MarketSnapshot, SeasonalWindow } from './types.js';
+import type { InvariantMode } from '../core/constants.js';
 
 const cp = <T>(x: T): T => structuredClone(x);
 
@@ -21,14 +22,17 @@ export const emptyMarket = (): MarketSnapshot => ({
 
 export class MarketDomain {
   private state: MarketSnapshot;
+  private invariantMode: InvariantMode = 'FULL';
+  setInvariantMode(m: InvariantMode) { this.invariantMode = m; }
+  checkInvariants() { this.assertInvariants(); }
 
   constructor(initial?: MarketSnapshot) {
     this.state = initial ? cp(initial) : emptyMarket();
-    this.assertInvariants();
+    if (this.invariantMode === 'FULL') this.assertInvariants();
   }
 
   snapshot(): MarketSnapshot { return cp(this.state); }
-  restore(s: MarketSnapshot) { this.state = cp(s); this.assertInvariants(); }
+  restore(s: MarketSnapshot) { this.state = cp(s); if (this.invariantMode === 'FULL') this.assertInvariants(); }
 
   get regime() { return this.state.regime; }
   get drivers() { return this.state.drivers; }
@@ -76,7 +80,7 @@ export class MarketDomain {
     }
 
     this.state.appliedEventIds.push(event.eventId);
-    this.assertInvariants();
+    if (this.invariantMode === 'FULL') this.assertInvariants();
   }
 
   assertInvariants() {
