@@ -1,3 +1,7 @@
+Status: ARCHIVED — MERGED
+Content merged into: docs/vision/CONFIRMED_PRODUCT_DIRECTION.md
+Do not treat as current vision authority.
+
 # Mežtirgus Game Vision
 
 A realistic forestry company simulator.

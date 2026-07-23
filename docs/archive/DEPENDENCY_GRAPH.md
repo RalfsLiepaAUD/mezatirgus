@@ -1,5 +1,9 @@
 # Dependency Graph
 
+> Status: ARCHIVED — SUPERSEDED
+> Current replacement: docs/systems/ARCHITECTURE.md
+> Do not treat as current architecture authority. Object names below (`AcquisitionLot`, `TimberBatch`, `MeasurementEvent`) are historical design-time names; the implementation uses `Lot`, `Batch`, `MeasurementAct` — see the replacement document.
+
 ## Architectural boundaries
 
 ```text

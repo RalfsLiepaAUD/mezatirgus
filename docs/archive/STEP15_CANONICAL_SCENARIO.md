@@ -1,3 +1,18 @@
+Status: ARCHIVED — DESIGN SOURCE, NOW IMPLEMENTED
+Current canonical golden scenario:
+docs/scenarios/STEP15_GOLDEN_SCENARIO.md (implementation: src/headless/step15.ts,
+tests: tests/step15-scenario.test.ts)
+
+This v3 document was the pre-implementation design/correction brief for the
+canonical Step 15 golden scenario. It was subsequently implemented in full
+(see the current canonical document above). The CONCEPTUAL / RRR (repository
+reconciliation required) / "DeepSeek handoff — inspect before code" language
+below reflects that pre-implementation state and must not be read as a
+statement that implementation is still pending. Retained for historical design
+rationale only — do not treat as current implementation authority.
+
+---
+
 STEP15_CANONICAL_SCENARIO.md — v3
 
 Status: replaces v2. Correction pass applied from the source audit of the canonical repository. Seven phases and the full connected-run goal preserved. No scope added.

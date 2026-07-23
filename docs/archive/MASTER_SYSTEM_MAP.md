@@ -1,3 +1,13 @@
+Status: ARCHIVED — HISTORICAL
+Current replacement: docs/systems/ARCHITECTURE.md
+This document was not in the owner's explicit cleanup list but was found still
+sitting in docs/design/ during final reconciliation: it duplicates content now
+consolidated in ARCHITECTURE.md, and its "TimberBatch" reference is stale (see
+docs/vision/DESIGN_DECISIONS.md / current domain names: Lot/Batch/Load/Deal).
+Archived for consistency. Do not treat as current truth.
+
+---
+
 # Master System Map
 
 ## Core chain

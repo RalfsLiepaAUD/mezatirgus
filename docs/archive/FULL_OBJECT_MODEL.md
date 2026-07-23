@@ -1,5 +1,9 @@
 # Full Object Model
 
+> Status: ARCHIVED — SUPERSEDED
+> Current replacement: docs/systems/ARCHITECTURE.md
+> Do not treat as current architecture authority. Object names below (`AcquisitionLot`, `TimberLot`, `TimberBatch`, `MeasurementEvent`) are historical design-time names; the implementation uses `Lot`, `Batch`, `MeasurementAct` — see the replacement document.
+
 ## Modeling rules
 
 - IDs are deterministic stable identifiers generated from persistent per-entity-type counters, with optional readable prefixes such as `DEAL-000001`, `LOT-000001`, `BATCH-000001`, and `LOAD-000001`. Counter state is part of the authoritative save and replay state. UI labels, names, and localized text must never be relational keys.

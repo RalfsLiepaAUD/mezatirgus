@@ -1,3 +1,7 @@
+Status: ARCHIVED — HISTORICAL
+Current replacement: docs/systems/STEP_2_DETERMINISTIC_CORE.md through STEP_14_MARKETS_SEASONS_OBSERVATIONS.md (per-system as-built reports)
+Do not treat as current truth.
+
 # Minimum Version of Every System
 
 ## Definition of “minimum”

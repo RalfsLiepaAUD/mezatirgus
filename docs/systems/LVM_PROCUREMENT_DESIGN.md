@@ -1,10 +1,17 @@
 # LVM_PROCUREMENT_DESIGN.md
 
-**Status: CANONICAL FOR LVM PROCUREMENT.** Defines how the state forest
-company's wood reaches the player. Supersedes all earlier in-chat framings of
-"LVM auctions," including the paper-prototype fiction of routinely bidding on
-individual prepared roadside piles. Constrained by DESIGN_DECISIONS.md and
-PROCUREMENT_DESIGN.md; yard mechanics live in YARD_SORTING_DESIGN.md.
+Status: TARGET DESIGN — PARTIALLY IMPLEMENTED
+Canonical for: the target LVM procurement subsystem (this is the single source
+of truth for how the state forest company's wood reaches the player — it
+supersedes all earlier framings of "LVM auctions," including the paper-prototype
+fiction of routinely bidding on individual prepared roadside piles).
+
+- **Implemented today**: the generic fictional auction engine at docs/systems/STEP_9_AUCTIONS_AND_FIRST_COMPETITOR.md (src/auction/) — a reusable low-level bidding primitive, not LVM-specific.
+- **Target (not yet built)**: the LVM-specific 3-channel institutional model (roadside/short-term auctions/long-term cooperation) this document describes.
+- **Research-required**: the [RESEARCH_REQUIRED]/[ASSUMED] items already flagged in the body remain open — those markers are left as-is below.
+
+Constrained by DESIGN_DECISIONS.md and PROCUREMENT_DESIGN.md; yard mechanics
+live in YARD_SORTING_DESIGN.md.
 
 ## 1. Scope
 

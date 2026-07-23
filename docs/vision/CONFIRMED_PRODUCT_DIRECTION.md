@@ -63,20 +63,9 @@ The target is **realistic but playable**. Commercial causality and accounting co
 - discovering buyer and supplier behavior through records rather than omniscient statistics;
 - scaling a fragile set of deals into a resilient integrated company without removing the possibility of failure.
 
-## Major design laws
+## Locked design laws
 
-1. **The cash conversion cycle is the game.** Suppliers and logistics consume cash before buyer measurement creates a receivable.
-2. **Every market move has a discoverable cause.** Seeded uncertainty may affect behavior, but price changes must flow from state and agent actions rather than arbitrary noise.
-3. **Margins remain narrow.** Target company net margins are broadly 2-6%; volume, velocity, information, and efficiency drive growth.
-4. **Hidden information is learnable.** Inspection, records, relationships, employees, and repeated deliveries reduce uncertainty.
-5. **The mirror applies.** A player-owned yard turns the player into buyer, grader, gatekeeper, and relationship manager under the same principles used by mills.
-6. **Strategy depends on regime.** Sorting, storage, spot trade, contracts, assets, and exports must each be strong in some states and weak in others.
-7. **The economy is shared and finite.** Timber, buyer intake, auction lots, trucks, employees, and contract capacity are conserved.
-8. **Competitors do not cheat.** They have noisy information, make mistakes, overcommit, and can become distressed.
-9. **The simulation remains losable.** Accounting profit does not prevent insolvency, degradation, contract penalties, or leverage failure.
-10. **Deliberation is never punished.** Planning is done while paused; only advancing simulation time advances other actors.
-11. **Configuration owns numeric assumptions.** Research values, tunables, and placeholders carry provenance; magic numbers in simulation logic are defects.
-12. **Fictional entities only.** Real organizations and public financials may calibrate distributions, never supply unverified in-game conduct.
+The complete, authoritative list of locked design laws lives in a single place: `DESIGN_DECISIONS.md` §1 ("Design laws [LOCKED]"). This document does not restate them, to avoid drift — read them there.
 
 ## Target player experience
 

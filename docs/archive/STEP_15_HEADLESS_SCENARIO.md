@@ -1,3 +1,17 @@
+Status: HISTORICAL PREDECESSOR
+Current canonical golden scenario:
+docs/scenarios/STEP15_GOLDEN_SCENARIO.md
+
+This document describes `src/headless/scenario.ts` — a simpler, earlier connected
+scenario that predates the canonical Step 15 golden scenario. It is not current
+implementation authority for "the" Step 15 scenario. `src/headless/scenario.ts`
+itself is unchanged and still wired to `package.json`'s `sim:headless` /
+`scenario:demo` scripts as a lightweight smoke run, but the canonical, audited
+golden scenario is `src/headless/step15.ts` (see
+`docs/scenarios/STEP15_GOLDEN_SCENARIO.md`).
+
+---
+
 # Step 15 — Connected Golden Scenario and Headless Balance Runner
 
 Status: **IMPLEMENTED**. Scope is exactly `FIRST_FULL_SKELETON_PLAN.md` §15.

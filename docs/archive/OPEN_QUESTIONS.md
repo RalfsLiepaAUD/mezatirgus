@@ -1,3 +1,7 @@
+Status: ARCHIVED — HISTORICAL
+Current replacement: docs/vision/DESIGN_DECISIONS.md and docs/roadmap/DECISIONS_STILL_NEEDED.md
+Do not treat as current truth.
+
 # SUPERSEDED — Open Questions
 
 > **Status: SUPERSEDED.** Retained for project history. Do not treat these questions as unresolved where `DESIGN_DECISIONS.md` has answered them. Current genuine gaps are maintained in `DECISIONS_STILL_NEEDED.md`.

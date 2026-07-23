@@ -1,3 +1,7 @@
+Status: HISTORICAL REFERENCE
+Not current implementation authority.
+See AGENTS.md and docs/README.md for canonical sources.
+
 # First Full Skeleton Plan
 
 ## Milestone outcome

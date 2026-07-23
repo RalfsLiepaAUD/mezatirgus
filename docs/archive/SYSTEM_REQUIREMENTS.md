@@ -1,3 +1,7 @@
+Status: ARCHIVED — HISTORICAL
+Current replacement: docs/vision/DESIGN_DECISIONS.md
+Do not treat as current truth.
+
 # SUPERSEDED — System Requirements
 
 > **Status: SUPERSEDED.** Retained for project history. Its open questions were resolved by `DESIGN_DECISIONS.md` and are not active requirements. Use the six current planning documents for implementation guidance.

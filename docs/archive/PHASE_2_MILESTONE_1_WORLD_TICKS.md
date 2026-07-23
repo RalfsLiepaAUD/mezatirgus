@@ -1,3 +1,7 @@
+Status: ARCHIVED — HISTORICAL
+Current replacement: docs/systems/STEP_2_DETERMINISTIC_CORE.md and src/scheduler/commands.ts (autonomous scheduler is now part of core sim)
+Do not treat as current truth.
+
 # Phase 2 Milestone 1 — The World Ticks
 
 Status: **IMPLEMENTED**.

@@ -1,3 +1,7 @@
+Status: ARCHIVED — HISTORICAL
+Current replacement: docs/design/FIRST_FULL_SKELETON_PLAN.md (kept at its original path)
+Do not treat as current truth.
+
 # SUPERSEDED — Development Plan
 
 > **Status: SUPERSEDED.** Retained for project history. The authoritative connected implementation sequence is now `FIRST_FULL_SKELETON_PLAN.md`, constrained by `DESIGN_DECISIONS.md`.

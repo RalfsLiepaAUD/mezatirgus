@@ -84,7 +84,7 @@ Contracts model period volume, schedule tolerance, fixed or indexed prices, retr
 
 The world contains 8–12 named fictional competitors plus a small-trader cloud. Timber, buyer capacity, auctions, trucks, employees, and contracts are finite. AI uses noisy beliefs, pays real costs, can overbid or overcommit, and can become distressed. Real firms and financials calibrate only; never copy identities or attribute unverified conduct.
 
-AI flows may use statistical resolution until they touch the player. Early and medium player operations retain individual TimberBatch, Load, and TransportJob records.
+AI flows may use statistical resolution until they touch the player. Early and medium player operations retain individual Batch, Load, and TransportJob records.
 
 **Load aggregation ceiling [LOCKED]:** aggregation is opt-in. Exception loads, disputed loads, contract-critical loads, and loads on new routes always remain individually visible. A recurring lane may aggregate routine flow only after several clean, successful repetitions prove the route stable. Aggregated flows preserve child lineage, costs, volume conservation, exception records, and reporting summaries. The player can inspect and override every lane.
 
@@ -104,9 +104,9 @@ Veneer, sawlog, pulpwood, and energy markets have different drivers. Market chan
 
 ## 15. Central object model [LOCKED]
 
-`Deal → AcquisitionLot / TimberLot → TimberBatch[] → Load[] → MeasurementEvent[]`.
+`Deal → Lot → Batch[] → Load[] → MeasurementAct[]`.
 
-Deal is the commercial/accounting identity. AcquisitionLot ties ownership, supplier terms, documents, and purchase cost. TimberBatch is homogeneous physical volume at one location. Load moves compatible portions. MeasurementEvent records buyer measurement, grading, payable value, and dispute state. Estimates remain alongside outcomes for analytics.
+Deal is the commercial/accounting identity. Lot ties ownership, supplier terms, documents, and purchase cost. Batch is homogeneous physical volume at one location. Load moves compatible portions. MeasurementAct records buyer measurement, grading, payable value, and dispute state. Estimates remain alongside outcomes for analytics.
 
 ## 16. Development and data rules [LOCKED]
 

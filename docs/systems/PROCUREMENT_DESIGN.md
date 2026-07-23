@@ -1,7 +1,13 @@
 PROCUREMENT_DESIGN.md — Canonical Timber Procurement Design
+
+Status: TARGET DESIGN — PARTIALLY IMPLEMENTED
+
+- **Implemented today**: the supplier/offer/relationship slice this design builds on already exists — recurring fictional suppliers, roadside offers, documents, relationships, and intel, as reported in docs/systems/STEP_7_SUPPLIERS_OFFERS_DOCUMENTS_RELATIONSHIPS_AND_INTEL.md. That is the current as-built authority for what actually runs today.
+- **Target (not yet built)**: everything below — the four-layer PhysicalPile → CanonicalOpportunity → CompanyView → Deal model, per-pile competitive views, negotiation state, certification progression, and the regional supply model — is design intent, not shipped behavior.
+- **Research-required**: certification premiums, audit practice, regional densities, and receiving-hour norms remain `[RESEARCH_REQUIRED]`/`[TUNABLE]` as already flagged throughout this document; treat those markers as still open.
+
 1. Status and scope
 
-Status: CANONICAL FOR PROCUREMENT
 Scope: Timber procurement, finite regional supply, offer discovery, shared competition, supplier relationships, mill demand, receiving windows, and certification handling.
 Supersedes earlier procurement drafts and clarification notes only. It governs the buying-and-placing gameplay of Mežtirgus and is constrained by DESIGN_DECISIONS.md (shared finite economy, causal prices, learnable hidden information, cash-conversion core). It is written for human developers and coding AIs. Nothing here locks uncertain real-world numbers: certification premiums, audit practice, regional densities, and receiving-hour norms are [RESEARCH_REQUIRED] or [TUNABLE] and live in configuration with provenance.
 
@@ -30,9 +36,9 @@ CanonicalOpportunity (market fact, one per pile-for-sale). Pile reference, owner
 
 CompanyView (private, one per aware company). That company's beliefs: estimated composition with confidence bands, relationship context with the owner, its own negotiation state (last offers/counters), inspection results, awareness source (call, gossip, agent). AI views are structurally identical to the player's — same object, different owner. Buy-side hidden-information gameplay lives here.
 
-Deal (created at commitment). Snapshot of the winning view plus final terms (price, volume basis, claims, payment speed). The pile's remaining lifecycle (pickup, transport, gate, measurement) hangs off the Deal via the existing Deal → AcquisitionLot → TimberBatch → Load → MeasurementEvent spine. Losing companies' views become dead intel with a cause ("sold to X").
+Deal (created at commitment). Snapshot of the winning view plus final terms (price, volume basis, claims, payment speed). The pile's remaining lifecycle (pickup, transport, gate, measurement) hangs off the Deal via the existing Deal → Lot → Batch → Load → MeasurementAct spine. Losing companies' views become dead intel with a cause ("sold to X").
 
-Integration: piles are AcquisitionLot precursors; receiving windows are TransportJob constraints; claims live in DocumentSet/QualityComposition. No new architecture.
+Integration: piles are Lot precursors; receiving windows are TransportJob constraints; claims live in DocumentSet/QualityComposition. No new architecture.
 
 5. Finite regional supply model
 

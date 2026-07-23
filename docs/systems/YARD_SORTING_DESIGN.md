@@ -1,10 +1,17 @@
 # YARD_SORTING_DESIGN.md
 
-**Status: CANONICAL FOR YARD SORTING.** Merges the base sorting design with
-Amendments A1 (when sorting occurs) and A2 (grade refinement and recovery
-potential). Obsolete assumptions from earlier drafts are removed, not merely
-overridden. Constrained by DESIGN_DECISIONS.md and PROCUREMENT_DESIGN.md.
-LVM-specific procurement rules live in LVM_PROCUREMENT_DESIGN.md.
+Status: TARGET DESIGN — PARTIALLY IMPLEMENTED
+Canonical for: the target yard-sorting subsystem (merges the base sorting
+design with Amendments A1 — when sorting occurs — and A2 — grade refinement
+and recovery potential; obsolete assumptions from earlier drafts are removed,
+not merely overridden).
+
+- **Implemented today**: yard-as-location/capacity/trucks/drivers at docs/systems/STEP_11_YARD_TRUCK_EMPLOYEE_LANE.md (src/operations/), plus a bare `SortBatchAtYard` command stub in src/operations/commands.ts.
+- **Target (not yet built)**: the grading/recovery-band/netback sorting economics this document describes.
+- **Research-required**: items already flagged in the body remain open.
+
+Constrained by DESIGN_DECISIONS.md and PROCUREMENT_DESIGN.md. LVM-specific
+procurement rules live in LVM_PROCUREMENT_DESIGN.md.
 
 ## 1. Scope
 
@@ -44,7 +51,7 @@ channels, mill behavior, or transport pricing, which are defined elsewhere.
 
 ### 3.1 Hidden truth
 
-Every TimberBatch carries hidden truth: exact volumes per (grade label ×
+Every Batch carries hidden truth: exact volumes per (grade label ×
 diameter band × recovery band), plus freshness (felling date) and claim tag.
 v1 recovery bands are discrete and exact `[TUNABLE thresholds, no real-world
 standard asserted]`:
@@ -77,10 +84,10 @@ SortingOperation
   preconditions: company controls a yard with sorting capability;
                  input batch located at that yard;
                  capacity available (else the job QUEUES — never instant)
-  input:   TimberBatch (parent)
+  input:   Batch (parent)
   params:  depth (rough | standard | fine) OR target template (buyer spec)
   costs:   €/m³ handling + time + capacity occupancy
-  output:  TimberBatch[] children partitioned by (label × diameter band ×
+  output:  Batch[] children partitioned by (label × diameter band ×
            recovery band per depth), certainty = high; freshness inherited;
            claims inherited per segregation rules; provenance → parent
   loss:    one explicit SortingLoss record (~0.5–2% [TUNABLE])
