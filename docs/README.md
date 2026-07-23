@@ -42,11 +42,14 @@ All AS-BUILT.
 ## Systems, target design (`docs/systems/`)
 
 Each states an explicit Implemented / Target / Research-required split at the top — read that block first, the rest of the document is the aspirational design.
+**Priority — read these only when working on their topic area:** markets, buyers, suppliers, AI yards, relationships, procurement, sorting, or LVM.
 
 | Doc | Purpose | Status |
 |---|---|---|
-| `PROCUREMENT_DESIGN.md` | Rich pile/opportunity/negotiation/certification procurement model | TARGET DESIGN — PARTIALLY IMPLEMENTED |
 | `LVM_PROCUREMENT_DESIGN.md` | LVM (state forest company) as a 3-channel supply institution | TARGET DESIGN — PARTIALLY IMPLEMENTED |
+| `MILL_SUPPLIER_RELATIONSHIP_DESIGN.md` | Mill relative-supplier ranking, structured relationship state, favours, negotiation, exploit protections | TARGET DESIGN — NOT YET IMPLEMENTED |
+| `PROCUREMENT_DESIGN.md` | Rich pile/opportunity/negotiation/certification procurement model | TARGET DESIGN — PARTIALLY IMPLEMENTED |
+| `REGIONAL_BUYER_AND_YARD_MARKET_DESIGN.md` | Regional multi-buyer market, physical AI trader yards, strict destination choice, arbitrage, net millback | TARGET DESIGN — NOT YET IMPLEMENTED |
 | `YARD_SORTING_DESIGN.md` | Yard grading/recovery-band/netback sorting economics | TARGET DESIGN — PARTIALLY IMPLEMENTED |
 
 ## Scenarios (`docs/scenarios/`)

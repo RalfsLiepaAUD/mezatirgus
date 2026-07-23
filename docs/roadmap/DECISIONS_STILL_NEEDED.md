@@ -41,6 +41,24 @@ Why: access, premiums, and overhead. Systems: documents, buyers, forests, export
 ### 3.7 Destination-specific export document rules
 Why: route/date-specific phytosanitary and customs gates. Systems: export, documents, ports. Default: intra-EU first skeleton; verified rule packs later. Change cost: low.
 
+### 3.8 Regional buyer geography, categories and processing capacity
+Why: 30–50 buyer target across Latvia, Estonia, Lithuania requires archetype placement. Systems: buyers, markets, maps. Default: fictional archetypes with plausible regional distribution. Change cost: configuration only once data exists.
+
+### 3.9 Cross-border Baltic timber trade economics
+Why: Estonia/Lithuania cross-border price differences, document requirements, transport costs, and trade flows. Systems: buyers, markets, transport, export. Default: no cross-border trade in v1 until researched. Change cost: configuration + potentially new buyer entities.
+
+### 3.10 Physical timber yard capacities and operations
+Why: yard stock levels, throughput, storage duration, and intake patterns for timber traders and aggregators. Systems: yards, buyers, markets, AI. Default: fictional placeholder values. Change cost: configuration only.
+
+### 3.11 Actual timber transport costs and payload norms
+Why: spot haulage rates, typical payloads, seasonal variation, empty-backhaul cost. Systems: transport, finance, markets. Default: sourced national anchors with explicit placeholder decomposition. Change cost: configuration only.
+
+### 3.12 Real company roles in Baltic timber trade
+Why: which timber traders operate yards, which mills also trade logs, which ports handle roundwood — for archetype calibration, not identity copying. Systems: AI, competitors, buyers, yards. Default: fictional only until research supports calibrated archetypes. Change cost: configuration only.
+
+### 3.13 Mill procurement practices and relationship norms
+Why: how mills evaluate and rank suppliers in practice; frequency and nature of relationship favours; negotiation patterns. Systems: buyers, suppliers, relationships, contracts. Default: fictional behaviour derived from the DESIGN_DECISIONS.md locked rules. Change cost: low-to-moderate behavioural tuning.
+
 ## 4. Tunable during playtesting
 
 | Item | Starting treatment |
